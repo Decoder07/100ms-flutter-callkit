@@ -20,6 +20,8 @@ class HMSVideoTrack extends HMSTrack {
             isMute: isMute,
             peer: peer);
 
+
+
   factory HMSVideoTrack.fromMap({required Map map, HMSPeer? peer}) {
     return map['hms_video_track_settings'] == null
         ? HMSVideoTrack(

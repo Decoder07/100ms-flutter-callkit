@@ -466,15 +466,11 @@ class _MeetingPageState extends State<MeetingPage> with WidgetsBindingObserver {
                                       mainAxisExtent: itemWidth,
                                     ),
                                     itemBuilder: (ctx, index) {
-
                                       return Observer(builder: (context) {
-                                        List<PeerTrackNodeStore>
-                                        peerTrackNodeStoreList =
-                                            _meetingStore.peerTracks;
                                         PeerTrackNodeStore peerTrackNodeStore =
-                                        peerTrackNodeStoreList[index];
+                                            _meetingStore.peerTracks[index];
                                         print(
-                                            "${peerTrackNodeStore.peer.name} buildingVideoTile");
+                                            "${peerTrackNodeStore.track} buildingVideoTile ${peerTrackNodeStore.peer.name} ${_meetingStore.isVideoOn}");
                                         return VideoTile(
                                           audioView: audioViewOn,
                                           peerTrackNodeStore:

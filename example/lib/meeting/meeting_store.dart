@@ -339,12 +339,14 @@ abstract class MeetingStoreBase extends ChangeNotifier
     if (track.kind == HMSTrackKind.kHMSTrackKindAudio) return;
 
     if (track.source == "REGULAR") {
+
       int index = peerTracks
           .indexWhere((element) => element.uid == peer.peerId + "mainVideo");
-      if (index != -1)
-        peerTracks[index].track = track as HMSVideoTrack;
-      else
-        return;
+      print("onTrackUpdateFlutter ${peer.name} ${track.kind} $index");
+      if (index != -1) {
+        PeerTrackNodeStore peerTrackNodeStore = peerTracks[index];
+        peerTrackNodeStore.track = track as HMSVideoTrack;
+      }
     }
 
     peerOperationWithTrack(peer, trackUpdate, track);
@@ -509,13 +511,14 @@ abstract class MeetingStoreBase extends ChangeNotifier
         updatePeerAt(peer);
         break;
       case HMSPeerUpdate.metadataChanged:
+        print("metadata ${peer.metadata}");
         int index =
         peerTracks.indexWhere((element) => element.uid == peer.peerId+"mainVideo");
-        if (index != -1 && peer.metadata == "{\"isHandRaised\":true}") {
+        if (index != -1 && peer.metadata == "{\"isHandRaised\":true,\"isBRBOn\":false}") {
           PeerTrackNodeStore peerTrackNodeStore = peerTracks[index];
           peerTrackNodeStore.peer = peer;
         }
-        else if (index != -1 && peer.metadata == "{\"isHandRaised\":false}") {
+        else if (index != -1 && peer.metadata == "{\"isHandRaised\":false,\"isBRBOn\":false}") {
           PeerTrackNodeStore peerTrackNodeStore = peerTracks[index];
           peerTrackNodeStore.peer = peer;
         }

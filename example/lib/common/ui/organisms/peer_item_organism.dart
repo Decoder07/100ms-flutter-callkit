@@ -43,6 +43,7 @@ class _PeerItemOrganismState extends State<PeerItemOrganism> {
   @override
   Widget build(BuildContext context) {
     print("PeerItemOrganism ${widget.peerTrackNodeStore.track.toString()}");
+    MeetingStore meetingStore = Provider.of<MeetingStore>(context);
     return Container(
       key: key,
       padding: EdgeInsets.all(2),
@@ -56,8 +57,10 @@ class _PeerItemOrganismState extends State<PeerItemOrganism> {
         children: [
           LayoutBuilder(
             builder: (context, constraints) {
-              if (widget.peerTrackNodeStore.track == null ||
-                  (widget.peerTrackNodeStore.track?.isMute ?? false)) {
+              if ((widget.peerTrackNodeStore.peer.isLocal &&
+                      !meetingStore.isVideoOn) ||
+                  (widget.peerTrackNodeStore.track == null ||
+                      (widget.peerTrackNodeStore.track?.isMute ?? false))) {
                 List<String>? parts =
                     widget.peerTrackNodeStore.peer.name.split(" ");
 
@@ -97,7 +100,7 @@ class _PeerItemOrganismState extends State<PeerItemOrganism> {
                 "${widget.peerTrackNodeStore.peer.name} ${widget.peerTrackNodeStore.peer.isLocal ? "(You)" : ""}"),
           ),
           if (widget.peerTrackNodeStore.peer.metadata ==
-              "{\"isHandRaised\":true}")
+              "{\"isHandRaised\":true,\"isBRBOn\":false}")
             Positioned(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
