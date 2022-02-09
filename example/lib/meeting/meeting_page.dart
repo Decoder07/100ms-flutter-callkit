@@ -132,6 +132,7 @@ class _MeetingPageState extends State<MeetingPage> with WidgetsBindingObserver {
       Navigator.of(context).pop();
     }
     _meetingStore.addUpdateListener();
+    _meetingStore.addPreviewListner();
   }
 
   @override

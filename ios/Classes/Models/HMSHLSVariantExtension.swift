@@ -16,7 +16,7 @@ class HMSHLSVariantExtension {
 
         dict["meeting_url"] = hmshlsVariant.meetingURL.absoluteString
 
-        if let metadata = hmshlsVariant.metadata  as? String {
+        if let metadata = hmshlsVariant.metadata as? String {
             dict["metadata"] = metadata
         }
 

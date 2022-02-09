@@ -719,6 +719,19 @@ class HMSSDK with WidgetsBindingObserver {
     PlatformService.removeLogsListener(hmsLogListener);
   }
 
+  Future<bool> previewForRole({required HMSRole role}) async {
+    var arguments = {"role_name": role.name};
+    var result = await PlatformService.invokeMethod(
+        PlatformMethod.previewForRole,
+        arguments: arguments);
+    if (result == null) return true;
+    return false;
+  }
+
+  void cancelPreivew() async {
+    await PlatformService.invokeMethod(PlatformMethod.cancelPreview);
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);

@@ -97,6 +97,8 @@ enum PlatformMethod {
   changeName,
   startHlsStreaming,
   stopHlsStreaming,
+  previewForRole,
+  cancelPreview,
 }
 
 extension PlatformMethodValues on PlatformMethod {
@@ -254,6 +256,10 @@ extension PlatformMethodValues on PlatformMethod {
       case PlatformMethod.isScreenShareActive:
         return 'is_screen_share_active';
 
+      case PlatformMethod.previewForRole:
+        return 'preview_for_role';
+      case PlatformMethod.cancelPreview:
+        return 'cancel_preview';
       default:
         return 'unknown';
     }
@@ -417,6 +423,11 @@ extension PlatformMethodValues on PlatformMethod {
       case 'is_screen_share_active':
         return PlatformMethod.isScreenShareActive;
 
+      case 'preview_for_role':
+        return PlatformMethod.previewForRole;
+
+      case 'cancel_preview':
+        return PlatformMethod.cancelPreview;
       default:
         return PlatformMethod.unknown;
     }

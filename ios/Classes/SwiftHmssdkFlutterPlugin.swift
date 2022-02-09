@@ -89,7 +89,6 @@ public class SwiftHmssdkFlutterPlugin: NSObject, FlutterPlugin, HMSUpdateListene
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
 
         switch call.method {
-
             // MARK: Room Actions
 
         case "build", "preview", "join", "leave":
@@ -138,7 +137,12 @@ public class SwiftHmssdkFlutterPlugin: NSObject, FlutterPlugin, HMSUpdateListene
 
         case "start_hms_logger", "remove_hms_logger":
             loggingActions(call, result: result)
-
+            
+        case "preview_for_role":
+            previewForRole(call, result)
+            
+        case "cancel_preview":
+            cancelPreview(result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -397,20 +401,30 @@ public class SwiftHmssdkFlutterPlugin: NSObject, FlutterPlugin, HMSUpdateListene
         result(nil)
     }
 
-    /*
+    
      private func previewForRole(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
      let arguments = call.arguments as! [AnyHashable: Any]
-     
-     hmsSDK?.preview(role: ) { ,  in
-     
-     }
+         guard let roleString = arguments["role_name"] as? String,
+         let role = getRole(by: roleString)
+         else {
+             let error = getError(message: "Invalid parameters for preview for role", params: ["function": #function, "arguments": arguments])
+             result(HMSErrorExtension.toDictionary(error))
+             return
+         }
+         hmsSDK?.preview(role: role) { _, error in
+             if let error = error {
+                 result(HMSErrorExtension.toDictionary(error))
+             } else {
+                 result(nil)
+             }
+         }
      }
      
      private func cancelPreview(_ result: FlutterResult) {
      hmsSDK?.cancelPreview()
      result(nil)
      }
-     */
+     
 
     private func join(_ call: FlutterMethodCall, _ result: FlutterResult) {
 

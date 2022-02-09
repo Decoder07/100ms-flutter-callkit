@@ -16,7 +16,7 @@ class MeetingStore = MeetingStoreBase with _$MeetingStore;
 
 abstract class MeetingStoreBase extends ChangeNotifier
     with Store
-    implements HMSUpdateListener, HMSActionResultListener {
+    implements HMSPreviewListener, HMSUpdateListener, HMSActionResultListener {
   late HMSSDKInteractor _hmssdkInteractor;
 
   MeetingStoreBase() {
@@ -572,6 +572,7 @@ abstract class MeetingStoreBase extends ChangeNotifier
             if (!isVideoOn)
               HmsSdkManager.hmsSdkInteractor!.switchVideo(isOn: true);
           }
+          HmsSdkManager.hmsSdkInteractor!.previewForRole(peer.role);
         }
         if (peer.role.name.contains("hls-") == false) {
           int index =
@@ -1022,5 +1023,30 @@ abstract class MeetingStoreBase extends ChangeNotifier
 
   Future<List<HMSPeer>?> getPeers() async {
     return await _hmssdkInteractor.getPeers();
+  }
+
+  void addPreviewListner() {
+    _hmssdkInteractor.addPreviewListener(this);
+  }
+
+  @override
+  void onPreview({required HMSRoom room, required List<HMSTrack> localTracks}) {
+    // this.room = room;
+    // for (HMSPeer each in room.peers!) {
+    //   if (each.isLocal) {
+    //     peer = each;
+    //     if (each.role.name.indexOf("hls-") == 0) {
+    //       isHLSLink = true;
+    //     }
+    //     break;
+    //   }
+    // }
+    // List<HMSVideoTrack> videoTracks = [];
+    // for (var track in localTracks) {
+    //   if (track.kind == HMSTrackKind.kHMSTrackKindVideo) {
+    //     videoTracks.add(track as HMSVideoTrack);
+    //   }
+    // }
+    // this.localTracks = ObservableList.of(videoTracks);
   }
 }
