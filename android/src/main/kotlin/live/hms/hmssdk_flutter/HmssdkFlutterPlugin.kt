@@ -36,6 +36,7 @@ import live.hms.video.sdk.models.enums.HMSPeerUpdate
 import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.enums.HMSTrackUpdate
 import live.hms.video.sdk.models.role.HMSRole
+import live.hms.video.utils.HmsUtilities
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
 import live.hms.video.utils.HMSLogger
 import java.lang.Exception
@@ -753,14 +754,9 @@ class HmssdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     private fun changeTrackState(call: MethodCall, result: Result) {
         val trackId = call.argument<String>("track_id")
         val mute = call.argument<Boolean>("mute")
+        val track = HmsUtilities.getTrack(trackId,hmssdk.getRoom()!!)
 
-        val tracks = getAllTracks()
-
-        val track  = tracks.first {
-            it.trackId == trackId
-        }
-
-        hmssdk.changeTrackState(track, mute!!, hmsActionResultListener = getActionListener(result))
+        hmssdk.changeTrackState(track!!, mute!!, hmsActionResultListener = getActionListener(result))
     }
 
 
@@ -1178,29 +1174,10 @@ class HmssdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     private fun setVolume(call: MethodCall, result: Result){
         val trackId = call.argument<String>("track_id")
         val volume = call.argument<Double>("volume")
-
-        hmssdk.getPeers().forEach { it ->
-            if(it.audioTrack?.trackId == trackId){
-                if(it.audioTrack is HMSRemoteAudioTrack){
-                    (it.audioTrack as HMSRemoteAudioTrack).setVolume(volume!!)
-                    result.success(null)
-                    return
-                }
-                else if(it.audioTrack is HMSLocalAudioTrack){
-                    (it.audioTrack as HMSLocalAudioTrack).volume = volume!!
-                    result.success(null)
-                    return
-                }
-            }
-
-            it.auxiliaryTracks.forEach {
-                if(it.trackId == trackId && it is HMSRemoteAudioTrack){
-                    it.setVolume(volume!!.toDouble())
-                    result.success(null)
-                    return
-                }
-            }
-        }
+        val track = HmsUtilities.getTrack(trackId, hmssdk.getRoom()!!)
+        (track as HMSRemoteAudioTrack).setVolume(volume)
+        result.success(null)
+        return
 
         val map = HashMap<String,Map<String,String>>()
         val error = HashMap<String, String>()

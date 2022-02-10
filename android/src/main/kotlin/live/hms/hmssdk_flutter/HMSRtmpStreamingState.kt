@@ -1,6 +1,8 @@
 
 import live.hms.hmssdk_flutter.HMSExceptionExtension
 import live.hms.hmssdk_flutter.HMSHLSVariantExtension
+import live.hms.hmssdk_flutter.HMSRecordingError
+import live.hms.hmssdk_flutter.HMSRtmpError
 import live.hms.video.sdk.models.HMSBrowserRecordingState
 import live.hms.video.sdk.models.HMSHLSStreamingState
 import live.hms.video.sdk.models.HMSRtmpStreamingState
@@ -12,7 +14,9 @@ class HMSStreamingState {
             val map = HashMap<String,Any?>()
             if(hmsRtmpStreamingState == null)return null
             map["running"] = hmsRtmpStreamingState.running
-            map["error"] = HMSExceptionExtension.toDictionary(hmsRtmpStreamingState.error)
+            map["error"] = HMSRtmpError.toDictionary(hmsRtmpStreamingState.error)
+            map["startAt"] = hmsRtmpStreamingState.startedAt
+            map["stopAt"] = hmsRtmpStreamingState.stoppedAt
             return map
         }
 
@@ -21,6 +25,7 @@ class HMSStreamingState {
             if(hmsServerRecordingState == null)return null
             map["running"] = hmsServerRecordingState.running
             map["error"] = HMSExceptionExtension.toDictionary(hmsServerRecordingState.error)
+            map["startAt"] = hmsServerRecordingState.startedAt
             return map
         }
 
@@ -28,7 +33,9 @@ class HMSStreamingState {
             val map = HashMap<String,Any?>()
             if(hmsBrowserRecordingState == null)return null
             map["running"] = hmsBrowserRecordingState.running
-            map["error"] = HMSExceptionExtension.toDictionary(hmsBrowserRecordingState.error)
+            map["error"] = HMSRecordingError.toDictionary(hmsBrowserRecordingState.error)
+            map["startAt"] = hmsBrowserRecordingState.startedAt
+            map["stopAt"] = hmsBrowserRecordingState.stoppedAt
             return map
         }
 
