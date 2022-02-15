@@ -146,8 +146,9 @@ class _VideoTileState extends State<VideoTile> {
                 Observer(builder: (context) {
                   print(
                       "Building hand raise ${widget.peerTrackNode.peer.metadata}");
-                  if (widget.peerTrackNode.peer.metadata ==
-                      "{\"isHandRaised\":true}")
+                  if (widget.peerTrackNode.peer.metadata
+                          ?.contains("\"isHandRaised\":true") ??
+                      false)
                     return Positioned(
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
