@@ -601,38 +601,43 @@ class _MeetingPageState extends State<MeetingPage> with WidgetsBindingObserver {
                         children: [
                           Flexible(
                             child: Observer(builder: (_) {
-                              
                               if (!_meetingStore.isHLSLink) {
                                 if (_meetingStore.peerTracks.isEmpty)
                                   return Center(
                                       child:
                                           Text('Waiting for others to join!'));
                                 return MasonryGridView.count(
-
-                                    scrollDirection: Axis.horizontal,
-                                    physics: PageScrollPhysics(),
-                                    itemCount: _meetingStore.peerTracks.length,
-                                    crossAxisCount: 2,
-                                    itemBuilder: (ctx, index) {
-                                      return Observer(builder: (context) {
-                                        PeerTrackNode peerTrackNodeStore;
-                                        peerTrackNodeStore =
-                                            _meetingStore.peerTracks[index];
-                                        print(
-                                            "${peerTrackNodeStore.track} buildingVideoTile "
-                                            "${peerTrackNodeStore.peer} "
-                                            "${peerTrackNodeStore.isVideoOn} ");
-                                        return VideoTile(
-                                          itemHeight: MediaQuery.of(context)
-                                              .size
-                                              .height,
-                                          itemWidth: itemWidth,
+                                  scrollDirection: Axis.horizontal,
+                                  physics: PageScrollPhysics(),
+                                  itemCount: _meetingStore.peerTracks.length,
+                                  crossAxisCount: 2,
+                                  itemBuilder: (ctx, index) {
+                                    return Observer(builder: (context) {
+                                      PeerTrackNode peerTrackNodeStore;
+                                      peerTrackNodeStore =
+                                          _meetingStore.peerTracks[index];
+                                      print(
+                                          "${peerTrackNodeStore.track} buildingVideoTile "
+                                          "${peerTrackNodeStore.peer} "
+                                          "${peerTrackNodeStore.isVideoOn} ");
+                                      return StaggeredGridTile.extent(
+                                        crossAxisCellCount: 1,
+                                        mainAxisExtent: 2000,
+                                        child: VideoTile(
+                                          // itemHeight:
+                                          //     MediaQuery.of(context).size.height,
+                                          itemWidth: ((peerTrackNodeStore
+                                                      .track?.source !=
+                                                  "REGULAR"))
+                                              ? 2 * itemWidth
+                                              : itemWidth,
                                           audioView: audioViewOn,
                                           peerTrackNode: peerTrackNodeStore,
-                                        );
-                                      });
-                                    },
-                                    );
+                                        ),
+                                      );
+                                    });
+                                  },
+                                );
                               } else {
                                 return SizedBox();
                               }
