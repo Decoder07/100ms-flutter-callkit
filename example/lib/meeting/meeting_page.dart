@@ -603,6 +603,7 @@ class _MeetingPageState extends State<MeetingPage> with WidgetsBindingObserver {
                             child: Observer(builder: (_) {
                               if (!_meetingStore.isHLSLink) {
                                 if (_meetingStore.peerTracks.isEmpty)
+
                                   return Center(
                                       child:
                                           Text('Waiting for others to join!'));
