@@ -243,6 +243,7 @@ class PlatformService {
       }
     });
 
+    ///recieves all updates regaring hmslogs as streams
     _logsEventChannel.receiveBroadcastStream({'name': 'logs'}).map((event) {
       List<dynamic> data = [];
 

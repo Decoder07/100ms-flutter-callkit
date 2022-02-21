@@ -681,6 +681,8 @@ class HMSSDK {
     PlatformService.removePreviewListener(listener);
   }
 
+
+  ///when you want to start hmslogger
   void startHMSLogger(
       {required HMSLogLevel webRtclogLevel, required HMSLogLevel logLevel}) {
     PlatformService.invokeMethod(PlatformMethod.startHMSLogger, arguments: {
@@ -690,14 +692,18 @@ class HMSSDK {
     });
   }
 
+  ///when you want to remove hmslogger device specific
   void removeHMSLogger() {
     PlatformService.invokeMethod(PlatformMethod.removeHMSLogger);
   }
 
+
+  ///when you want to add flutter [HMSLogListener] instance.
   void addLogListener({required HMSLogListener hmsLogListener}) {
     PlatformService.addLogsListener(hmsLogListener);
   }
 
+  ///when you want to remove flutter [HMSLogListener] instance.
   void removeLogListener({required HMSLogListener hmsLogListener}) {
     PlatformService.removeLogsListener(hmsLogListener);
   }

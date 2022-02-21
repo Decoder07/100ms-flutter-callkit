@@ -12,9 +12,14 @@
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 
 class HMSRole {
+  ///name of the role
   String name;
+
+  ///publish settings
   HMSPublishSetting? publishSettings;
   HMSSubscribeSettings? subscribeSettings;
+
+  ///permissions given to the peer
   HMSPermissions permissions;
   int priority;
   Map? generalPermissions;

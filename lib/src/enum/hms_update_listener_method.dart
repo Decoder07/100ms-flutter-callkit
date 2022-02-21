@@ -1,15 +1,39 @@
 enum HMSUpdateListenerMethod {
+
+  ///when you join the room you will get this callback
   onJoinRoom,
+
+  ///when room is updated you will get this callback
   onUpdateRoom,
+
+  ///when there is peer update you will get this callback
   onPeerUpdate,
+
+  ///when track is received you will get this callback.
   onTrackUpdate,
+
+  ///when some error comes.
   onError,
+
+  ///when you get message you get this callback.
   onMessage,
+
+  ///when you get onUpdateSpeaker callback.
   onUpdateSpeaker,
+
+  ///when you get onRecconecting callaback
   onReconnecting,
+
+  ///when you reconnect back
   onReconnected,
+
+  ///when someone wants to change your role
   onRoleChangeRequest,
+
+  ///when someone wants to change your track.
   onChangeTrackStateRequest,
+
+  ///when someone rwemoves you.
   onRemovedFromRoom,
   unknown
 }

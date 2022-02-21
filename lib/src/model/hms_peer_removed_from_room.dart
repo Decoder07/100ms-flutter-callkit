@@ -1,9 +1,15 @@
 // Project imports:
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 
+///[HMSPeerRemovedFromPeer] is the class which contains the info about the peer who removed you and why
 class HMSPeerRemovedFromPeer {
+  ///[peerWhoRemoved] is the instance of the peer who removed you
   final HMSPeer? peerWhoRemoved;
+
+  ///this is the reason why remote peer removed you.
   final String reason;
+
+  ///[roomWasEnded] ti check whether room was ended or not.
   final bool roomWasEnded;
 
   HMSPeerRemovedFromPeer(

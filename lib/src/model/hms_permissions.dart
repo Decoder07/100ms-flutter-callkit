@@ -1,10 +1,26 @@
+
+///[HMSPermissions] instance is a part of HMSPeer which tells what all permissions that peer has.
 class HMSPermissions {
+
+  ///tells whether endRoom permission is present or not.
   final bool? endRoom;
+
+  ///tells whether removeOthers permission is present or not.
   final bool? removeOthers;
+
+  ///tells whether stopPresentation permission is present or not.
   final bool? stopPresentation;
+
+  ///tells whether mute permission is present or not.
   final bool? mute;
+
+  ///tells whether unMute permission is present or not.
   final bool? unMute;
+
+  ///tells whether changeRoleForce permission is present or not.
   final bool? changeRoleForce;
+
+  ///tells whether changeRole permission is present or not.
   final bool? changeRole;
 
   HMSPermissions(

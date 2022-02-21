@@ -1,7 +1,10 @@
 // Project imports:
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 
+///[HMSVideoTrack] instance is the video track of a peer.
 class HMSVideoTrack extends HMSTrack {
+
+  ///check whether track is degraded or not.
   final bool isDegraded;
 
   HMSVideoTrack(

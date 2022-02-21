@@ -1,6 +1,7 @@
 // Project imports:
 import 'package:hmssdk_flutter/src/exceptions/hms_exception.dart';
 
+///[HMSBrowserRecordingState] instance has browser recording state of the room.
 class HMSBrowserRecordingState {
   final HMSException? error;
   final bool running;

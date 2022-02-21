@@ -4,7 +4,8 @@ import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 ///parent of all audio tracks
 class HMSAudioTrack extends HMSTrack {
   HMSAudioTrack(
-      {required HMSTrackKind kind,
+      {
+        required HMSTrackKind kind,
       required String source,
       required String trackId,
       required String trackDescription,

@@ -2,6 +2,7 @@
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 import 'package:hmssdk_flutter/src/service/platform_service.dart';
 
+///[HMSLocalAudioTrack] is the audio track of local peer.
 class HMSLocalAudioTrack extends HMSAudioTrack {
   final HMSAudioTrackSetting setting;
   double? volume;

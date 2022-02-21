@@ -1,6 +1,7 @@
 // Project imports:
 import 'package:hmssdk_flutter/src/exceptions/hms_exception.dart';
 
+///[HMSRtmpStreamingState] instance has rtmp streaming state of the room.
 class HMSRtmpStreamingState {
   final HMSException? error;
   final bool running;

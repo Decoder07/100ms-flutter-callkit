@@ -11,9 +11,17 @@ enum HMSTrackUpdate {
 
   ///when track is unmuted could be audio,video or both.
   trackUnMuted,
+
+  ///when track description changed.
   trackDescriptionChanged,
+
+  ///when track is degraded because of connectivity issue.
   trackDegraded,
+
+  ///when track is restored.
   trackRestored,
+
+
   defaultUpdate
 }
 

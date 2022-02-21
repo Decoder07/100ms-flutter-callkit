@@ -1,6 +1,7 @@
 // Project imports:
 import '../../hmssdk_flutter.dart';
 
+///[HMSServerRecordingState] instance has server recording state of the room.
 class HMSServerRecordingState {
   final HMSException? error;
   final bool running;

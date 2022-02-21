@@ -2,9 +2,13 @@
 import 'dart:core';
 
 class HMSHLSVariant {
+  ///this is the streaming url.
   final String? hlsStreamUrl;
+
+  ///this is meeting Url of which you want streaming
   final String? meetingUrl;
   final String? metadata;
+
   final int? startedAt;
 
   HMSHLSVariant(

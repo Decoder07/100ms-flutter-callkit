@@ -5,6 +5,8 @@ enum PlatformMethod {
 
   ///leave meeting
   leave,
+
+  ///when you get onLeave update
   onLeave,
 
   ///when onJoin callback is called
@@ -23,10 +25,16 @@ enum PlatformMethod {
   onError,
   onMessage,
 
-  ///when you want to send a message.
+  ///when you want to send a broadcast message.
   sendBroadcastMessage,
+
+  ///when you want to send a direct message
   sendDirectMessage,
+
+  ///when you want to send a group message
   sendGroupMessage,
+
+  ///when you get onUpdateSpeaker callback
   onUpdateSpeaker,
 
   ///when reconnecting update method is called.
@@ -37,6 +45,8 @@ enum PlatformMethod {
 
   ///switch mic on/off.
   switchAudio,
+
+  ///switch video on/off.
   switchVideo,
 
   ///switch your camera.
@@ -63,39 +73,83 @@ enum PlatformMethod {
   ///change your peer role.
   changeRole,
 
-// turn on screen share start
+// turn on screen share start.
   startScreenShare,
 
-// turn off screen share
+// turn off screen share.
   stopScreenShare,
 
-// check if screen share is active
+// check if screen share is active.
   isScreenShareActive,
 
   ///get list of roles using this.
   getRoles,
+
+  ///when you want to change remote peer track state.
   changeTrackState,
+
+  ///when you want to end room.
   endRoom,
+
+  ///when you want to remove a peer from room.
   removePeer,
+
+  ///when you want to mute all.
   muteAll,
+
+  ///when you want to unmute all.
   unMuteAll,
+
+  ///when you want to getLocalPeer.
   getLocalPeer,
+
+  ///when you want to getRemotePeers.
   getRemotePeers,
+
+  ///when you want to getPeers.
   getPeers,
   unknown,
+
+  ///when you want to startHmsLogger.
   startHMSLogger,
+
+  ///when you want to remove HmsLogListener.
   removeHMSLogger,
+
+  ///when you want to changeTrackState by role.
   changeTrackStateForRole,
+
+  ///when you want to startRtmpOrRecording.
   startRtmpOrRecording,
+
+  ///when you want to stopRtmpAndRecording.
   stopRtmpAndRecording,
+
+  ///To build the sdk instance.
   build,
+
+  ///when you want to get [HMSRoom] instance.
   getRoom,
+
+  ///update hmslocalvideoTrackSettings
   updateHMSLocalVideoTrackSettings,
+
+  ///if you want to change the metadata
   changeMetadata,
+
+  ///to setPlayBack allowed of remote peers audio
   setPlayBackAllowed,
+
+  ///setting the volume of remote audiotrack of a peer
   setVolume,
+
+  ///changingthe local peer name
   changeName,
+
+  ///starting the hlsStreaming can take upto 10secs
   startHlsStreaming,
+
+  ///stopping the hlsStreaming
   stopHlsStreaming,
 }
 

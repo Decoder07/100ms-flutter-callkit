@@ -20,9 +20,17 @@ class HMSRoom {
   String? id;
   String? name;
   String? metaData;
+
+  ///browser recording state of the room
   HMSBrowserRecordingState? hmsBrowserRecordingState;
+
+  ///rtmp streaming state of the room
   HMSRtmpStreamingState? hmsRtmpStreamingState;
+
+  ///server recording state of the room
   HMSServerRecordingState? hmsServerRecordingState;
+
+  ///hls streaming state of the room
   HMSHLSStreamingState? hmshlsStreamingState;
 
   ///[peers] list which are in the room.

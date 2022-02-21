@@ -1,4 +1,16 @@
-enum HMSMessageRecipientType { BROADCAST, DIRECT, GROUP, unKnown }
+enum HMSMessageRecipientType {
+
+  ///to broadcast messages to all
+  BROADCAST,
+
+  ///to message directly to a peer
+  DIRECT,
+
+  ///to message in roles
+  GROUP,
+  unKnown
+
+}
 
 extension HMSMessageRecipientValues on HMSMessageRecipientType {
   static HMSMessageRecipientType getHMSMessageRecipientFromName(String name) {

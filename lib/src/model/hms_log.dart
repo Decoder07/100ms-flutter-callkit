@@ -1,6 +1,7 @@
 // Project imports:
 import 'package:hmssdk_flutter/src/enum/hms_log_level.dart';
 
+///[HMSLog] is the data model which you get hmsLogListener update
 class HMSLog {
   HMSLogLevel level;
   String tag;

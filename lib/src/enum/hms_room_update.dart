@@ -1,9 +1,21 @@
 enum HMSRoomUpdate {
+
+  ///when room is muted
   roomMuted,
+
+  ///when room is unmuted
   roomUnmuted,
+
+  ///when serverRecordingState is changed
   serverRecordingStateUpdated,
+
+  ///when browserRecordingStateUpdated is changed
   browserRecordingStateUpdated,
+
+  ///when rtmpStreamingStateUpdated is changed
   rtmpStreamingStateUpdated,
+
+  ///when hlsStreamingStateUpdated is changed
   hlsStreamingStateUpdated,
   defaultUpdate
 }

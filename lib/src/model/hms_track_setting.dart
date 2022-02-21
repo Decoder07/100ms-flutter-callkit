@@ -1,6 +1,7 @@
 // Project imports:
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 
+///[HMSTrackSetting] intance is passed as optional in build to change the settings of the hmmsdk.
 class HMSTrackSetting {
   final HMSAudioTrackSetting? audioTrackSetting;
   final HMSVideoTrackSetting? videoTrackSetting;
