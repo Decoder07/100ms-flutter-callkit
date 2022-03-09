@@ -7,6 +7,7 @@ import 'package:collection/collection.dart';
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 import 'package:hmssdk_flutter_example/meeting/meeting_store.dart';
 import 'package:provider/provider.dart';
+import 'package:tuple/tuple.dart';
 
 class ChatWidget extends StatefulWidget {
   final MeetingStore meetingStore;
@@ -61,9 +62,10 @@ class _ChatWidgetState extends State<ChatWidget> {
                             SizedBox(
                               width: 5,
                             ),
-                            Consumer<MeetingStore>(
-                                builder: (context, _meetingStore, _) {
-                              List<HMSRole> roles = _meetingStore.roles;
+                            Selector<MeetingStore,Tuple2<List<HMSRole>,List<HMSPeer>>>(
+                                selector: (_,meetingStore) => Tuple2(meetingStore.roles,meetingStore.peers),
+                                builder: (context, data, _) {
+                              List<HMSRole> roles = data.item1;
                               if (roles.length > 0) {
                                 return DropdownButtonHideUnderline(
                                   child: DropdownButton2(
@@ -80,7 +82,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                                         child: Text("Everyone"),
                                         value: "Everyone",
                                       ),
-                                      ..._meetingStore.peers
+                                      ...data.item2
                                           .map((peer) {
                                             return !peer.isLocal
                                                 ? DropdownMenuItem<String>(
@@ -122,15 +124,15 @@ class _ChatWidgetState extends State<ChatWidget> {
                     ),
                   ),
                   Expanded(
-                    child: Consumer<MeetingStore>(
-                      builder: (context, _meetingStore, _) {
-                        if (!_meetingStore.isMeetingStarted) return SizedBox();
-                        if (_meetingStore.messages.isEmpty)
+                    child: Selector<MeetingStore,List<HMSMessage>>(
+                      selector: (_,meetingStore) => meetingStore.messages,
+                      builder: (context, messages, _) {
+                        if (messages.isEmpty)
                           return Center(child: Text('No messages'));
 
                         return ListView(
                           children: List.generate(
-                            _meetingStore.messages.length,
+                            messages.length,
                             (index) => Container(
                               padding: EdgeInsets.symmetric(
                                   vertical: 3, horizontal: 10),
@@ -143,7 +145,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                                     children: [
                                       Expanded(
                                         child: Text(
-                                          _meetingStore.messages[index].sender
+                                          messages[index].sender
                                                   ?.name ??
                                               "",
                                           style: TextStyle(
@@ -153,7 +155,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                                         ),
                                       ),
                                       Text(
-                                        _meetingStore.messages[index].time
+                                        messages[index].time
                                             .toString(),
                                         style: TextStyle(
                                             fontSize: 10.0,
@@ -170,7 +172,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                                     children: [
                                       Flexible(
                                         child: Text(
-                                          _meetingStore.messages[index].message
+                                          messages[index].message
                                               .toString(),
                                           style: TextStyle(
                                               fontSize: 14.0,
@@ -181,8 +183,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                                       Text(
                                         HMSMessageRecipientValues
                                                 .getValueFromHMSMessageRecipientType(
-                                                    _meetingStore
-                                                        .messages[index]
+                                                    messages[index]
                                                         .hmsMessageRecipient!
                                                         .hmsMessageRecipientType)
                                             .toLowerCase(),
@@ -275,6 +276,8 @@ class _ChatWidgetState extends State<ChatWidget> {
 void chatMessages(BuildContext context, MeetingStore meetingStore) {
   showModalBottomSheet(
       context: context,
-      builder: (ctx) => ChatWidget(meetingStore),
+      builder: (ctx) => ChangeNotifierProvider.value(
+        value: meetingStore,
+        child: ChatWidget(meetingStore)),
       isScrollControlled: true);
 }

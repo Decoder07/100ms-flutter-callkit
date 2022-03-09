@@ -29,9 +29,14 @@ class MeetingPage extends StatefulWidget {
   final String roomId;
   final MeetingFlow flow;
   final String user;
+  final bool isAudioOn;
 
   const MeetingPage(
-      {Key? key, required this.roomId, required this.flow, required this.user})
+      {Key? key,
+      required this.roomId,
+      required this.flow,
+      required this.user,
+      required this.isAudioOn})
       : super(key: key);
 
   @override
@@ -47,18 +52,13 @@ class _MeetingPageState extends State<MeetingPage>
   bool videoPreviousState = false;
   bool isRecordingStarted = false;
   bool isBRB = false;
-  late MeetingStore meetingsStoreInstance;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
-    meetingsStoreInstance = MeetingStore();
-    MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => meetingsStoreInstance)],
-    );
     initMeeting();
-    checkButtons();
+    checkAudioState();
   }
 
   void initMeeting() async {
@@ -74,16 +74,10 @@ class _MeetingPageState extends State<MeetingPage>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    checkButtons();
   }
 
-  void checkButtons() async {
-    context.read<MeetingStore>().isVideoOn = !(await context
-        .read<MeetingStore>()
-        .isVideoMute(context.read<MeetingStore>().localPeer));
-    context.read<MeetingStore>().isMicOn = !(await context
-        .read<MeetingStore>()
-        .isAudioMute(context.read<MeetingStore>().localPeer));
+  void checkAudioState() async {
+    if (!widget.isAudioOn) context.read<MeetingStore>().switchAudio();
   }
 
   @override
@@ -105,7 +99,7 @@ class _MeetingPageState extends State<MeetingPage>
 
       case 2:
         if (_meetingStore.isRecordingStarted) {
-          meetingsStoreInstance.stopRtmpAndRecording();
+          _meetingStore.stopRtmpAndRecording();
           isRecordingStarted = false;
         } else {
           if (isRecordingStarted == false) {
@@ -114,7 +108,7 @@ class _MeetingPageState extends State<MeetingPage>
                 placeholder: "Enter RTMP Url",
                 prefilledValue: Constant.rtmpUrl);
             if (url.isNotEmpty) {
-              meetingsStoreInstance.startRtmpOrRecording(
+              _meetingStore.startRtmpOrRecording(
                   meetingUrl: url, toRecord: true, rtmpUrls: null);
               isRecordingStarted = true;
             }
@@ -123,7 +117,7 @@ class _MeetingPageState extends State<MeetingPage>
         break;
 
       case 3:
-        if (_meetingStore.isVideoOn) meetingsStoreInstance.switchCamera();
+        if (_meetingStore.isVideoOn) _meetingStore.switchCamera();
 
         break;
       case 4:
@@ -185,40 +179,40 @@ class _MeetingPageState extends State<MeetingPage>
         String name = await UtilityComponents.showInputDialog(
             context: context, placeholder: "Enter Name");
         if (name.isNotEmpty) {
-          meetingsStoreInstance.changeName(name: name);
+          _meetingStore.changeName(name: name);
         }
         break;
       case 9:
         if (_meetingStore.hasHlsStarted) {
-          meetingsStoreInstance.stopHLSStreaming();
+          _meetingStore.stopHLSStreaming();
         } else {
           String url = await UtilityComponents.showInputDialog(
               context: context,
               placeholder: "Enter HLS Url",
               prefilledValue: Constant.rtmpUrl);
           if (url.isNotEmpty) {
-            meetingsStoreInstance.startHLSStreaming(url);
+            _meetingStore.startHLSStreaming(url);
           }
         }
         break;
 
       case 10:
-        List<HMSRole> roles = await meetingsStoreInstance.getRoles();
+        List<HMSRole> roles = await _meetingStore.getRoles();
         List<HMSRole> selectedRoles =
             await UtilityComponents.showRoleList(context, roles);
         if (selectedRoles.isNotEmpty)
-          meetingsStoreInstance.changeTrackStateForRole(true, selectedRoles);
+          _meetingStore.changeTrackStateForRole(true, selectedRoles);
         break;
       case 11:
-        meetingsStoreInstance.changeTrackStateForRole(true, null);
+        _meetingStore.changeTrackStateForRole(true, null);
         break;
       case 12:
-        meetingsStoreInstance.changeMetadataBRB();
+        _meetingStore.changeMetadataBRB();
         // raisedHand = false;
         isBRB = !isBRB;
         break;
       case 13:
-        meetingsStoreInstance.endRoom(false, "Room Ended From Flutter");
+        _meetingStore.endRoom(false, "Room Ended From Flutter");
         if (_meetingStore.isRoomEnded) {
           Navigator.pop(context);
         }
@@ -296,7 +290,7 @@ class _MeetingPageState extends State<MeetingPage>
                         // mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
-                            height : MediaQuery.of(context).size.height * 0.78,
+                            height: MediaQuery.of(context).size.height * 0.78,
                             child: Selector<MeetingStore,
                                     Tuple3<List<PeerTrackNode>, bool, int>>(
                                 selector: (_, meetingStore) => Tuple3(
@@ -312,24 +306,22 @@ class _MeetingPageState extends State<MeetingPage>
                                           : MasonryGridView.count(
                                               cacheExtent: 0,
                                               addAutomaticKeepAlives: false,
-                                              scrollDirection:
-                                                  Axis.horizontal,
+                                              scrollDirection: Axis.horizontal,
                                               physics: PageScrollPhysics(),
                                               itemCount: data.item3,
                                               crossAxisCount: 2,
                                               itemBuilder: (ctx, index) {
                                                 return ChangeNotifierProvider
                                                     .value(
-                                                        value: data
-                                                            .item1[index],
+                                                        value:
+                                                            data.item1[index],
                                                         child: VideoTile(
                                                           itemHeight:
                                                               MediaQuery.of(
                                                                       context)
                                                                   .size
                                                                   .height,
-                                                          itemWidth:
-                                                              itemWidth,
+                                                          itemWidth: itemWidth,
                                                           audioView:
                                                               audioViewOn,
                                                           index: index,
@@ -368,16 +360,41 @@ class _MeetingPageState extends State<MeetingPage>
                                         })
                                     : SizedBox();
                               }),
-                              Align(
-                                alignment: Alignment.bottomCenter,
-                            child:expandModalBottomSheet(),
-
-                              )
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: expandModalBottomSheet(),
+                          ),
+                          Selector<MeetingStore, HMSRoleChangeRequest?>(
+                              selector: (_, meetingStore) =>
+                                  meetingStore.roleChangeRequest,
+                              builder: (_, roleChangeRequest, __) {
+                                if (roleChangeRequest != null) {
+                                  WidgetsBinding.instance!
+                                      .addPostFrameCallback((_) {
+                                    UtilityComponents.showRoleChangeDialog(
+                                        roleChangeRequest, context);
+                                  });
+                                }
+                                return Container();
+                              }),
+                          Selector<MeetingStore, HMSTrackChangeRequest?>(
+                              selector: (_, meetingStore) =>
+                                  meetingStore.hmsTrackChangeRequest,
+                              builder: (_, hmsTrackChangeRequest, __) {
+                                if (hmsTrackChangeRequest != null) {
+                                  WidgetsBinding.instance!
+                                      .addPostFrameCallback((_) {
+                                    UtilityComponents.showTrackChangeDialog(
+                                        hmsTrackChangeRequest, context);
+                                  });
+                                }
+                                return Container();
+                              })
                         ],
                       ),
-                      
+
                       //Later this row will be replaced with modalBottomSheet
-                       );
+                    );
             },
           )),
       onWillPop: () async {
@@ -419,7 +436,6 @@ class _MeetingPageState extends State<MeetingPage>
     bool isExpanded = false;
 
     return DraggableScrollableSheet(
-        
         controller: scrollController,
         expand: false,
         minChildSize: 0.1,
@@ -444,7 +460,7 @@ class _MeetingPageState extends State<MeetingPage>
                         children: [
                           Selector<MeetingStore, Tuple2<HMSPeer?, bool>>(
                             selector: (_, meetingStore) => Tuple2(
-                                meetingStore.localPeer, meetingStore.localpeerTrackNode?.isVideoOn??false),
+                                meetingStore.localPeer, meetingStore.isVideoOn),
                             builder: (_, data, __) {
                               return ((data.item1 != null) &&
                                       data.item1!.role.publishSettings!.allowed
@@ -551,8 +567,8 @@ class _MeetingPageState extends State<MeetingPage>
                                   await UtilityComponents.onBackPressed(
                                       context);
                                 },
-                                icon:
-                                    Icon(Icons.call_end, color: Colors.grey.shade900)),
+                                icon: Icon(Icons.call_end,
+                                    color: Colors.grey.shade900)),
                           ),
                         ]),
                     Row(
@@ -564,10 +580,18 @@ class _MeetingPageState extends State<MeetingPage>
                               tooltip: 'Chat',
                               iconSize: 24,
                               onPressed: () {
-                                // chatMessages(context, _meetingStore);
+                                animatedView(scrollController, isExpanded);
+                                isExpanded = !isExpanded;
+                                if (_controller.isDismissed)
+                                  _controller.forward();
+                                else if (_controller.isCompleted)
+                                  _controller.reverse();
+                                Future.delayed(Duration(milliseconds: 500),()=>
+                                chatMessages(
+                                    context, context.read<MeetingStore>()));
                               },
-                              icon:
-                                  Icon(Icons.chat_bubble, color: Colors.grey.shade900)),
+                              icon: Icon(Icons.chat_bubble,
+                                  color: Colors.grey.shade900)),
                         ),
                         Selector<MeetingStore, HMSPeer?>(
                           selector: (_, meetingStore) => meetingStore.localPeer,

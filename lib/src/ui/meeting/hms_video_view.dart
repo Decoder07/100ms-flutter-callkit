@@ -51,7 +51,7 @@ class HMSVideoView extends StatelessWidget {
           track: track,
           matchParent: this.matchParent,
           viewSize: Size(constraints.maxWidth, constraints.maxHeight),
-          setMirror: setMirror,
+          setMirror: setMirror, 
         );
       });
   }

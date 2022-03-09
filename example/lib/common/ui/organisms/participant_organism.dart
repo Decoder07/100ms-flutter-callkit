@@ -22,6 +22,7 @@ class _ParticipantOrganismState extends State<ParticipantOrganism> {
   MeetingStore? _meetingStore;
   @override
   void initState() {
+    _meetingStore = context.read<MeetingStore>();
     super.initState();
     checkButtons();
   }

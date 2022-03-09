@@ -123,7 +123,6 @@ class MeetingStore extends ChangeNotifier
       _hmssdkInteractor.stopScreenShare();
     }
     _hmssdkInteractor.leave(hmsActionResultListener: this);
-    isRoomEnded = true;
     peerTracks.clear();
   }
 
@@ -240,11 +239,13 @@ class MeetingStore extends ChangeNotifier
 
   void addMessage(HMSMessage message) {
     this.messages.add(message);
+    notifyListeners();
   }
 
   void addTrackChangeRequestInstance(
       HMSTrackChangeRequest hmsTrackChangeRequest) {
     this.hmsTrackChangeRequest = hmsTrackChangeRequest;
+    notifyListeners();
   }
 
   void updatePeerAt(peer) {
@@ -342,9 +343,10 @@ class MeetingStore extends ChangeNotifier
     }
 
     if (peer.isLocal &&
-        (trackUpdate == HMSTrackUpdate.trackMuted) &&
-        track.kind == HMSTrackKind.kHMSTrackKindAudio) {
+        (track.kind == HMSTrackKind.kHMSTrackKindAudio) &&
+        (trackUpdate == HMSTrackUpdate.trackMuted)) {
       this.isMicOn = false;
+      notifyListeners();
     }
 
     if (peer.isLocal) {
@@ -354,7 +356,10 @@ class MeetingStore extends ChangeNotifier
         localTrack = track;
         if (track.isMute) {
           this.isVideoOn = false;
+        } else {
+          this.isVideoOn = true;
         }
+        notifyListeners();
       }
     }
 
@@ -504,7 +509,7 @@ class MeetingStore extends ChangeNotifier
         }
         if (peer.role.name.contains("hls-") == false) {
           int index = peerTracks.indexWhere(
-              (element) => element.peer.peerId == peer.peerId + "mainVideo");
+              (element) => element.uid == peer.peerId + "mainVideo");
           //if (index != -1) peerTracks[index].track = track;
           if (index == -1)
             peerTracks.add(new PeerTrackNode(
@@ -800,7 +805,7 @@ class MeetingStore extends ChangeNotifier
         notifyListeners();
         break;
       case HMSActionResultListenerMethod.endRoom:
-        this.isRoomEnded = true;
+        isRoomEnded = true;
         notifyListeners();
         break;
       case HMSActionResultListenerMethod.removePeer:
@@ -907,6 +912,8 @@ class MeetingStore extends ChangeNotifier
         // TODO: Handle this case.
         break;
       case HMSActionResultListenerMethod.endRoom:
+        isRoomEnded = true;
+        notifyListeners();
         // TODO: Handle this case.
         print("HMSException ${hmsException.message}");
         break;
