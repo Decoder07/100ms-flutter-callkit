@@ -7,7 +7,6 @@
 /// A [peer] is the object returned by 100ms SDKs that contains all information about a user - name, role, video track etc.
 ///
 ///This library depends only on core Dart libraries and hms_audio_track.dart, hms_role.dart, hms_track.dart, hms_video_track.dart library.
-
 // Dart imports:
 import 'dart:io';
 
@@ -48,23 +47,23 @@ class HMSRemotePeer extends HMSPeer {
     this.videoRemoteTrack,
     this.auxiliaryTracks,
   }) : super(
-            peerId: peerId,
-            name: name,
-            isLocal: isLocal,
-            role: role,
-            customerUserId: customerUserId,
-            metadata: metadata,
-            audioTrack: audioRemoteTrack,
-            videoTrack: videoRemoteTrack,
-            auxiliaryTracks: auxiliaryTracks);
+      peerId: peerId,
+      name: name,
+      isLocal: isLocal,
+      role: role,
+      customerUserId: customerUserId,
+      metadata: metadata,
+      audioTrack: audioRemoteTrack,
+      videoTrack: videoRemoteTrack,
+      auxiliaryTracks: auxiliaryTracks);
 
   ///important to compare using [peerId]
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is HMSPeer &&
-          runtimeType == other.runtimeType &&
-          peerId == other.peerId;
+          other is HMSPeer &&
+              runtimeType == other.runtimeType &&
+              peerId == other.peerId;
 
   @override
   int get hashCode => peerId.hashCode;
@@ -96,14 +95,14 @@ class HMSRemotePeer extends HMSPeer {
 
       if (map['audio_track'] != null) {
         peer.audioRemoteTrack =
-            HMSAudioTrack.fromMap(map: map['audio_track']!, peer: peer)
-                as HMSRemoteAudioTrack;
+        HMSAudioTrack.fromMap(map: map['audio_track']!)
+        as HMSRemoteAudioTrack;
       }
 
       if (map['video_track'] != null) {
         peer.videoRemoteTrack =
-            HMSVideoTrack.fromMap(map: map['video_track']!, peer: peer)
-                as HMSRemoteVideoTrack;
+        HMSVideoTrack.fromMap(map: map['video_track']!)
+        as HMSRemoteVideoTrack;
       }
 
       return peer;

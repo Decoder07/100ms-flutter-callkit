@@ -7,15 +7,13 @@
 /// A [peer] is the object returned by 100ms SDKs that contains all information about a user - name, role, video track etc.
 ///
 ///This library depends only on core Dart libraries and hms_audio_track.dart, hms_role.dart, hms_track.dart, hms_video_track.dart library.
-
 // Dart imports:
 import 'dart:io';
 
 // Project imports:
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
-import 'package:hmssdk_flutter/src/service/platform_service.dart';
 
-class HMSPeer{
+class HMSPeer {
   ///id of the peer
   late final String peerId;
 
@@ -54,9 +52,9 @@ class HMSPeer{
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is HMSPeer &&
-          runtimeType == other.runtimeType &&
-          peerId == other.peerId;
+          other is HMSPeer &&
+              runtimeType == other.runtimeType &&
+              peerId == other.peerId;
 
   @override
   int get hashCode => peerId.hashCode;
@@ -89,30 +87,30 @@ class HMSPeer{
 
       HMSPeer peer = (map['is_local'] == true)
           ? HMSLocalPeer(
-              peerId: map['peer_id'],
-              name: map['name'],
-              isLocal: map['is_local'],
-              role: role,
-              metadata: map['metadata'],
-              customerUserId: map['customer_user_id'],
-            )
+        peerId: map['peer_id'],
+        name: map['name'],
+        isLocal: map['is_local'],
+        role: role,
+        metadata: map['metadata'],
+        customerUserId: map['customer_user_id'],
+      )
           : HMSRemotePeer(
-              peerId: map['peer_id'],
-              name: map['name'],
-              isLocal: map['is_local'],
-              role: role,
-              metadata: map['metadata'],
-              customerUserId: map['customer_user_id'],
-            );
+        peerId: map['peer_id'],
+        name: map['name'],
+        isLocal: map['is_local'],
+        role: role,
+        metadata: map['metadata'],
+        customerUserId: map['customer_user_id'],
+      );
 
       if (map['audio_track'] != null) {
         peer.audioTrack =
-            HMSAudioTrack.fromMap(map: map['audio_track']!, peer: peer);
+            HMSAudioTrack.fromMap(map: map['audio_track']!);
       }
 
       if (map['video_track'] != null) {
         peer.videoTrack =
-            HMSVideoTrack.fromMap(map: map['video_track']!, peer: peer);
+            HMSVideoTrack.fromMap(map: map['video_track']!);
       }
 
       return peer;
@@ -125,27 +123,4 @@ class HMSPeer{
     List<HMSPeer> peers = peersMap.map((e) => HMSPeer.fromMap(e)).toList();
     return peers;
   }
-
-  Future<List<HMSTrack>> getAllTracks() async {
-    var result = await PlatformService.invokeMethod(
-        PlatformMethod.getAllTracks,
-        arguments: {"peer_id": this.peerId});
-    print(result);
-    List<HMSTrack> tracks = [];
-    result.forEach((element) {
-      HMSTrack hmsTrack = HMSTrack.fromMap(map: element);
-      tracks.add(hmsTrack);
-    });
-
-    return tracks;
-  }
-
-  Future<HMSTrack> getTrackById({required String trackId}) async {
-    var result = await PlatformService.invokeMethod(PlatformMethod.getTrackById,
-        arguments: {"peer_id": this.peerId, "track_id": trackId});
-
-    HMSTrack hmsTrack = HMSTrack.fromMap(map: result);
-    return hmsTrack;
-  }
-
 }

@@ -7,21 +7,20 @@ class HMSLocalVideoTrack extends HMSVideoTrack {
 
   HMSLocalVideoTrack(
       {required this.setting,
-      required bool isDegraded,
-      required HMSTrackKind kind,
-      required String source,
-      required String trackId,
-      required String trackDescription,
-      required bool isMute,
-      HMSPeer? peer})
+        required bool isDegraded,
+        required HMSTrackKind kind,
+        required String source,
+        required String trackId,
+        required String trackDescription,
+        required bool isMute,
+      })
       : super(
-            isDegraded: isDegraded,
-            kind: kind,
-            source: source,
-            trackDescription: trackDescription,
-            trackId: trackId,
-            isMute: isMute,
-            peer: peer);
+      isDegraded: isDegraded,
+      kind: kind,
+      source: source,
+      trackDescription: trackDescription,
+      trackId: trackId,
+      isMute: isMute);
 
   Future<void> startCapturing() async {
     await PlatformService.invokeMethod(PlatformMethod.startCapturing);
@@ -43,7 +42,6 @@ class HMSLocalVideoTrack extends HMSVideoTrack {
         kind: HMSTrackKindValue.getHMSTrackKindFromName(map['track_kind']),
         isMute: map['track_mute'],
         isDegraded: map['is_degraded'],
-        peer: peer,
         setting: HMSVideoTrackSetting.fromMap(map["hms_video_track_settings"]));
   }
 

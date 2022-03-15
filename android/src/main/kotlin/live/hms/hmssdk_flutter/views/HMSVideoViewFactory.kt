@@ -14,11 +14,20 @@ import live.hms.video.media.tracks.HMSVideoTrack
 import live.hms.video.sdk.models.HMSPeer
 import org.webrtc.SurfaceViewRenderer
 
-class HMSVideoViewWidget(context: Context, id: Int, creationParams: Map<String?, Any?>?, private val peer:HMSPeer?, private val trackId:String, private val  isAux:Boolean, private val setMirror:Boolean,
-                         private val scaleType : Int?,val screenShare:Boolean? = false,private val matchParent: Boolean? = true
+class HMSVideoViewWidget(
+    context: Context,
+    id: Int,
+    creationParams: Map<String?, Any?>?,
+    private val peer: HMSPeer?,
+    private val trackId: String,
+    private val isAux: Boolean,
+    private val setMirror: Boolean,
+    private val scaleType: Int?,
+    val screenShare: Boolean? = false,
+    private val matchParent: Boolean? = true
 ) : PlatformView {
 
-    private val hmsVideoView: HMSVideoView = HMSVideoView(context,setMirror,scaleType)
+    private val hmsVideoView: HMSVideoView = HMSVideoView(context, setMirror, scaleType)
 
     override fun onFlutterViewAttached(flutterView: View) {
         super.onFlutterViewAttached(flutterView)
@@ -60,7 +69,10 @@ class HMSVideoViewWidget(context: Context, id: Int, creationParams: Map<String?,
             peer.videoTrack.let {
                 if (it?.trackId == trackId || peer.isLocal) {
                     hmsVideoView.setVideoTrack(it)
-                    Log.i("HMSVideoViewFactory","### renderVideo regular ${peer!!.name} <> ${it!!.source} <> ${it!!.trackId} <> $trackId")
+                    Log.i(
+                        "HMSVideoViewFactory",
+                        "### renderVideo regular ${peer!!.name} <> ${it!!.source} <> ${it!!.trackId} <> $trackId"
+                    )
                 }
             }
         }
@@ -94,17 +106,27 @@ class HMSVideoViewFactory(private val plugin: HmssdkFlutterPlugin) :
 
         val creationParams = args as Map<String?, Any?>?
 
-        val id=args!!["peer_id"] as? String ?: ""
-        val isLocal=args!!["is_local"] as? Boolean
-        val setMirror=args!!["set_mirror"] as? Boolean
-        val trackId=args!!["track_id"] as? String
-        val isAuxiliary = args!!["is_aux"] as? Boolean
-        val scaleType = args!!["scale_type"] as? Int
-        val screenShare = args!!["screen_share"] as? Boolean
-        val matchParent = args!!["match_parent"] as? Boolean
+        val setMirror = args!!["set_mirror"] as? Boolean
+        val trackId = args["track_id"] as? String
+        val isAuxiliary = args["is_aux"] as? Boolean
+        val scaleType = args["scale_type"] as? Int
+        val screenShare = args["screen_share"] as? Boolean
+        val matchParent = args["match_parent"] as? Boolean
+        val peer: HMSPeer = plugin.hmssdk.getPeers().first {
+            it.getTrackById(trackId?.trim()!!)?.trackId?.trim() == trackId.trim()
+        }
 
-        val peer = if(isLocal==null || isLocal) plugin.getLocalPeer()
-        else plugin.getPeerById(id!!)!!
-        return HMSVideoViewWidget(context, viewId, creationParams,peer,trackId!!,isAuxiliary!!,setMirror!!,scaleType,screenShare,matchParent)
+        return HMSVideoViewWidget(
+            context,
+            viewId,
+            creationParams,
+            peer,
+            trackId!!,
+            isAuxiliary!!,
+            setMirror!!,
+            scaleType,
+            screenShare,
+            matchParent
+        )
     }
 }

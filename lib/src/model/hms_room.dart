@@ -7,7 +7,6 @@
 /// This library depends only on core Dart libraries and the `hms_peer.dart` library.
 ///
 ///A [room] is the basic object that 100ms SDKs return on successful connection. This contains references to peers, tracks and everything you need to render a live a/v app.
-
 // Project imports:
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 import 'package:hmssdk_flutter/src/model/hms_browser_recording_state.dart';
@@ -17,27 +16,26 @@ import 'hms_rtmp_streaming_state.dart';
 
 class HMSRoom {
   ///[id] of the room
-  String? id;
+  String id;
   String? name;
   String? metaData;
   HMSBrowserRecordingState? hmsBrowserRecordingState;
   HMSRtmpStreamingState? hmsRtmpStreamingState;
   HMSServerRecordingState? hmsServerRecordingState;
   HMSHLSStreamingState? hmshlsStreamingState;
-  int peerCount;
-  int startedAt;
+
   ///[peers] list which are in the room.
   final List<HMSPeer>? peers;
 
   HMSRoom(
-      {this.id,
-      this.name,
-      required this.peers,
-      this.metaData,
-      this.hmsServerRecordingState,
-      this.hmsRtmpStreamingState,
-      this.hmsBrowserRecordingState,
-      this.hmshlsStreamingState,this.peerCount=0,this.startedAt=0});
+      {required this.id,
+        this.name,
+        required this.peers,
+        this.metaData,
+        this.hmsServerRecordingState,
+        this.hmsRtmpStreamingState,
+        this.hmsBrowserRecordingState,
+        this.hmshlsStreamingState});
 
   factory HMSRoom.fromMap(Map map) {
     List<HMSPeer> peers = [];
@@ -68,10 +66,7 @@ class HMSRoom {
         id: map['id'],
         name: map['name'],
         peers: peers,
-        metaData: map['meta_data'],
-        peerCount: map["peer_count"]!=null?map["peer_count"]:0,
-        startedAt:map["started_at"]!=null?map["started_at"]:0
-        );
+        metaData: map['meta_data']);
   }
 
   @override
