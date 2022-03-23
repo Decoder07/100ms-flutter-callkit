@@ -48,6 +48,7 @@ class _VideoTileState extends State<VideoTile> {
 
     return VisibilityDetector(
       onVisibilityChanged: (VisibilityInfo info) {
+        print("INAPP ${info.toString()}");
         if(_meetingStore.isRoomEnded)
         return;
         var visiblePercentage = info.visibleFraction * 100;

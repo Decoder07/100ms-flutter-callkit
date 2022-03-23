@@ -15,6 +15,7 @@ import 'package:flutter/services.dart' show StandardMessageCodec;
 // Project imports:
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 import 'package:hmssdk_flutter/src/enum/hms_video_scale_type.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 class HMSVideoView extends StatelessWidget {
   /// [HMSVideoView] will render video using trackId from HMSTrack
@@ -28,11 +29,11 @@ class HMSVideoView extends StatelessWidget {
 
   HMSVideoView(
       {Key? key,
-        required this.track,
-        this.viewSize,
-        this.setMirror = false,
-        this.matchParent = true,
-        this.scaleType = ScaleType.SCALE_ASPECT_FIT})
+      required this.track,
+      this.viewSize,
+      this.setMirror = false,
+      this.matchParent = true,
+      this.scaleType = ScaleType.SCALE_ASPECT_FIT})
       : super(key: key);
 
   @override
@@ -93,10 +94,11 @@ class _PlatformView extends StatelessWidget {
           'set_mirror': track.source != "REGULAR" ? false : setMirror,
           'scale_type': scaleType.value,
           'match_parent': matchParent,
+          'key': this.hashCode
         }..addAll({
-          'height': viewSize.height,
-          'width': viewSize.width,
-        }),
+            'height': viewSize.height,
+            'width': viewSize.width,
+          }),
         gestureRecognizers: {},
       );
     } else if (Platform.isIOS) {
@@ -112,10 +114,11 @@ class _PlatformView extends StatelessWidget {
           'set_mirror': track.source != "REGULAR" ? false : setMirror,
           'scale_type': scaleType.value,
           'match_parent': matchParent,
+          'key': this.hashCode
         }..addAll({
-          'height': viewSize.height,
-          'width': viewSize.width,
-        }),
+            'height': viewSize.height,
+            'width': viewSize.width,
+          }),
         gestureRecognizers: {},
       );
     } else {

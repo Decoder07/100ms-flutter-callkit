@@ -15,18 +15,19 @@ import live.hms.video.sdk.models.HMSPeer
 import org.webrtc.SurfaceViewRenderer
 
 class HMSVideoViewWidget(context: Context, id: Int, creationParams: Map<String?, Any?>?, private val peer:HMSPeer?, private val trackId:String, private val  isAux:Boolean, private val setMirror:Boolean,
-                         private val scaleType : Int?,val screenShare:Boolean? = false,private val matchParent: Boolean? = true
+                         private val scaleType : Int?,val screenShare:Boolean? = false,private val matchParent: Boolean? = true,private val key: Int
 ) : PlatformView {
 
-    private val hmsVideoView: HMSVideoView = HMSVideoView(context,setMirror,scaleType)
+    private val hmsVideoView: HMSVideoView = HMSVideoView(context,setMirror,scaleType,key)
 
     override fun onFlutterViewAttached(flutterView: View) {
         super.onFlutterViewAttached(flutterView)
+        Log.i("onFlutterViewAttached","same")
         renderVideo()
     }
 
     private fun renderVideo() {
-
+        Log.i("renderVideo","${key} ${hmsVideoView.key}")
         var frameLayoutParams = FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.MATCH_PARENT,
             FrameLayout.LayoutParams.MATCH_PARENT
@@ -67,6 +68,7 @@ class HMSVideoViewWidget(context: Context, id: Int, creationParams: Map<String?,
     }
 
     override fun getView(): View {
+        Log.i("getViewHMSVideoView","same")
         return hmsVideoView
     }
 
@@ -75,8 +77,9 @@ class HMSVideoViewWidget(context: Context, id: Int, creationParams: Map<String?,
     }
 
     private fun release() {
+        Log.i("releaseHMSVideoView","${key} ${hmsVideoView.key}")
         if (hmsVideoView.currentVideoTrack != null) {
-            if (hmsVideoView.currentVideoTrack!!.trackId == trackId) { // peer?.isLocal == true
+            if (hmsVideoView.currentVideoTrack!!.trackId == trackId && hmsVideoView.key == key) { // peer?.isLocal == true
                 hmsVideoView.currentVideoTrack!!.removeSink(hmsVideoView.surfaceViewRenderer)
                 hmsVideoView.surfaceViewRenderer.release()
                 hmsVideoView.currentVideoTrack = null
@@ -100,10 +103,11 @@ class HMSVideoViewFactory(private val plugin: HmssdkFlutterPlugin) :
         val scaleType = args!!["scale_type"] as? Int
         val screenShare = args!!["screen_share"] as? Boolean
         val matchParent = args!!["match_parent"] as? Boolean
+        val key = args!!["key"] as? Int
 
         val peer : HMSPeer = plugin.hmssdk.getPeers().first {
             it.getTrackById(trackId?.trim()!!)?.trackId?.trim() == trackId.trim()
         }
-        return HMSVideoViewWidget(context, viewId, creationParams,peer,trackId!!,isAuxiliary!!,setMirror!!,scaleType,screenShare,matchParent)
+        return HMSVideoViewWidget(context, viewId, creationParams,peer,trackId!!,isAuxiliary!!,setMirror!!,scaleType,screenShare,matchParent,key!!)
     }
 }

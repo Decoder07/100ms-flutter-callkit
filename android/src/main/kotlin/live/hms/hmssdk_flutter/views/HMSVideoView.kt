@@ -27,7 +27,8 @@ import java.lang.Math.abs
 class HMSVideoView(
     context: Context,
     setMirror: Boolean,
-    scaleType: Int? = RendererCommon.ScalingType.SCALE_ASPECT_FIT.ordinal
+    scaleType: Int? = RendererCommon.ScalingType.SCALE_ASPECT_FIT.ordinal,
+    val key: Int
 ) : FrameLayout(context, null) {
 
     var currentVideoTrack: HMSVideoTrack? = null
