@@ -20,8 +20,8 @@ jobs:
     - run: flutter pub get
     - run: pwd
     - run: ls
-    - run: cd ../
     - run: cd example
+    - run: ls
     - run: flutter build apk --release
     
     - uses: actions/upload-artifact@v1
