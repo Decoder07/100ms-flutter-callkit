@@ -19,6 +19,8 @@ jobs:
         java-version: '11'
     - run: flutter pub get
     - run: pwd
+    - run: ls
+    - run: cd ../
     - run: cd example
     - run: flutter build apk --release
     
