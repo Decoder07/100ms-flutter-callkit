@@ -8,6 +8,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./example
     steps:
     - uses: actions/checkout@v1
     - uses: subosito/flutter-action@v2
@@ -19,8 +22,6 @@ jobs:
         java-version: '11'
     - run: flutter pub get
     - run: pwd
-    - run: ls
-    - run: cd example
     - run: ls
     - run: flutter build apk --release
     
