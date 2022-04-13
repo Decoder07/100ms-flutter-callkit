@@ -17,8 +17,8 @@ jobs:
       with:
         distribution: 'zulu'
         java-version: '11'
-    - run: cd example
     - run: flutter pub get
+    - run: cd example
     - run: flutter build apk --release
     
     - uses: actions/upload-artifact@v1
