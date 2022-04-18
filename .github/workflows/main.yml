@@ -34,7 +34,7 @@ jobs:
           
     - run: |
         echo "$KEY_PROPERTIES" > key.properties.b64
-        base64 -d -i key.properties.b64 > app/key.properties
+        base64 -d -i key.properties.b64 > key.properties
       env:
           KEY_PROPERTIES: ${{ secrets.KEY_PROPERTIES }}
           
