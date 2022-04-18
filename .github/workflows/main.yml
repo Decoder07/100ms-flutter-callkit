@@ -29,7 +29,7 @@ jobs:
     - run: flutter pub get
     - run: pwd
     - run: ls
-    - run: flutter build apk --release
+    - run: bundle exec fastlane distribute
     
     - uses: actions/upload-artifact@v1
       with:
