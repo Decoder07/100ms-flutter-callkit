@@ -25,6 +25,7 @@ jobs:
         base64 -d -i firebase_credentials.json.b64 > google-services.json
       env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+    - run: cp google-services.json /android/app        
     - run: flutter pub get
     - run: pwd
     - run: ls
