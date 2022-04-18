@@ -29,6 +29,7 @@ jobs:
     - run: flutter pub get
     - run: pwd
     - run: ls
+      working-directory: ./android
     - run: bundle exec fastlane distribute
     
     - uses: actions/upload-artifact@v1
