@@ -2,12 +2,18 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:hmssdk_flutter_example/common/ui/organisms/receive_message.dart';
+import 'package:hmssdk_flutter_example/common/ui/organisms/send_message.dart';
+import 'package:hmssdk_flutter_example/common/util/app_color.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:tuple/tuple.dart';
 
 //Project imports
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 import 'package:hmssdk_flutter_example/meeting/meeting_store.dart';
-import 'package:provider/provider.dart';
-import 'package:tuple/tuple.dart';
 
 class ChatWidget extends StatefulWidget {
   final MeetingStore meetingStore;
@@ -22,15 +28,45 @@ class _ChatWidgetState extends State<ChatWidget> {
   late double widthOfScreen;
   TextEditingController messageTextController = TextEditingController();
   String valueChoose = "Everyone";
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
   }
 
+  void _scrollDown() {
+    SchedulerBinding.instance!.addPostFrameCallback((_) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent + 20,
+        duration: Duration(seconds: 1),
+        curve: Curves.fastOutSlowIn,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    messageTextController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  String sender(HMSMessageRecipient hmsMessageRecipient) {
+    if ((hmsMessageRecipient.recipientPeer != null) &&
+        (hmsMessageRecipient.recipientRoles == null)) {
+      return hmsMessageRecipient.recipientPeer?.name ?? "";
+    } else if ((hmsMessageRecipient.recipientPeer == null) &&
+        (hmsMessageRecipient.recipientRoles != null)) {
+      return hmsMessageRecipient.recipientRoles![0].name;
+    }
+    return "";
+  }
+
   @override
   Widget build(BuildContext context) {
     widthOfScreen = MediaQuery.of(context).size.width;
+    final DateFormat formatter = DateFormat('hh:mm a');
     return FractionallySizedBox(
       heightFactor: 0.8,
       child: Container(
@@ -39,84 +75,102 @@ class _ChatWidgetState extends State<ChatWidget> {
           child: Center(
             child: Container(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding:
-                        EdgeInsets.symmetric(vertical: 5.0, horizontal: 10),
-                    color: Colors.blue,
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Row(
-                          children: [
-                            Icon(Icons.people_alt_outlined),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Selector<MeetingStore,
-                                    Tuple2<List<HMSRole>, List<HMSPeer>>>(
-                                selector: (_, meetingStore) => Tuple2(
-                                    meetingStore.roles, meetingStore.peers),
-                                builder: (context, data, _) {
-                                  List<HMSRole> roles = data.item1;
-                                  if (roles.length > 0) {
-                                    return DropdownButtonHideUnderline(
-                                      child: DropdownButton2(
-                                        buttonWidth: 150,
-                                        value: valueChoose,
-                                        iconEnabledColor: Colors.white,
-                                        onChanged: (newvalue) {
-                                          setState(() {
-                                            this.valueChoose =
-                                                newvalue as String;
-                                          });
-                                        },
-                                        items: [
-                                          DropdownMenuItem<String>(
-                                            child: Text("Everyone"),
-                                            value: "Everyone",
-                                          ),
-                                          ...data.item2
-                                              .map((peer) {
-                                                return !peer.isLocal
-                                                    ? DropdownMenuItem<String>(
-                                                        child: Text(
-                                                            "${peer.name} ${peer.isLocal ? "(You)" : ""}"),
-                                                        value: peer.peerId,
-                                                      )
-                                                    : null;
-                                              })
-                                              .whereNotNull()
-                                              .toList(),
-                                          ...roles
-                                              .map((role) =>
-                                                  DropdownMenuItem<String>(
-                                                    child: Text("${role.name}"),
-                                                    value: role.name,
-                                                  ))
-                                              .toList()
-                                        ],
-                                      ),
-                                    );
-                                  } else
-                                    return CircularProgressIndicator(
-                                      color: Colors.white,
-                                    );
-                                }),
-                          ],
+                        Icon(Icons.people_alt_outlined),
+                        SizedBox(
+                          width: 5,
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: Icon(
-                            Icons.clear,
-                            size: 25.0,
-                          ),
-                        )
+                        Selector<MeetingStore,
+                                Tuple2<List<HMSRole>, List<HMSPeer>>>(
+                            selector: (_, meetingStore) =>
+                                Tuple2(meetingStore.roles, meetingStore.peers),
+                            builder: (context, data, _) {
+                              List<HMSRole> roles = data.item1;
+                              if (roles.length > 0) {
+                                return DropdownButtonHideUnderline(
+                                  child: DropdownButton2(
+                                    isExpanded: true,
+                                    dropdownWidth:
+                                        MediaQuery.of(context).size.width * 0.6,
+                                    buttonWidth: 120,
+                                    value: valueChoose,
+                                    offset: Offset(
+                                        -1 *
+                                            (MediaQuery.of(context).size.width *
+                                                0.2),
+                                        0),
+                                    iconEnabledColor: iconColor,
+                                    selectedItemHighlightColor: Colors.blue,
+                                    onChanged: (newvalue) {
+                                      setState(() {
+                                        this.valueChoose = newvalue as String;
+                                      });
+                                    },
+                                    items: [
+                                      DropdownMenuItem<String>(
+                                        child: Text(
+                                          "Everyone",
+                                          style: GoogleFonts.inter(),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                        ),
+                                        value: "Everyone",
+                                      ),
+                                      ...roles
+                                          .sortedBy((element) =>
+                                              element.priority.toString())
+                                          .map((role) =>
+                                              DropdownMenuItem<String>(
+                                                child: Text(
+                                                  "${role.name}",
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                  style: GoogleFonts.inter(
+                                                      color: iconColor),
+                                                ),
+                                                value: role.name,
+                                              ))
+                                          .toList(),
+                                      ...data.item2
+                                          .sortedBy((element) => element.name)
+                                          .map((peer) {
+                                            return !peer.isLocal
+                                                ? DropdownMenuItem<String>(
+                                                    child: Text(
+                                                      "${peer.name} ${peer.isLocal ? "(You)" : ""}",
+                                                      style: GoogleFonts.inter(
+                                                          color: iconColor),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 1,
+                                                    ),
+                                                    value: peer.peerId,
+                                                  )
+                                                : null;
+                                          })
+                                          .whereNotNull()
+                                          .toList(),
+                                    ],
+                                  ),
+                                );
+                              } else
+                                return CircularProgressIndicator(
+                                  color: Colors.white,
+                                );
+                            }),
                       ],
                     ),
+                  ),
+                  Divider(
+                    height: 5,
+                    color: Colors.grey,
                   ),
                   Expanded(
                     child:
@@ -124,99 +178,61 @@ class _ChatWidgetState extends State<ChatWidget> {
                       selector: (_, meetingStore) => Tuple2(
                           meetingStore.messages, meetingStore.messages.length),
                       builder: (context, data, _) {
-                        // if (!_meetingStore.isMeetingStarted) return SizedBox();
-
                         if (data.item2 == 0)
-                          return Center(child: Text('No messages'));
+                          return Center(
+                              child: Text(
+                            'No messages',
+                            style: GoogleFonts.inter(color: iconColor),
+                          ));
 
                         return ListView(
+                          controller: _scrollController,
                           children: List.generate(
                             data.item2,
                             (index) => Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 3, horizontal: 10),
-                              margin: EdgeInsets.symmetric(vertical: 3),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
+                              margin: EdgeInsets.symmetric(vertical: 2),
+                              child: data.item1[index].sender?.isLocal ?? false
+                                  ? SendMessageScreen(
+                                      senderName:
                                           data.item1[index].sender?.name ?? "",
-                                          style: TextStyle(
-                                              fontSize: 14.0,
-                                              color: MediaQuery.of(context)
-                                                          .platformBrightness ==
-                                                      Brightness.light
-                                                  ? Colors.grey
-                                                  : Colors.white70,
-                                              fontWeight: FontWeight.w600),
-                                        ),
-                                      ),
-                                      Text(
-                                        data.item1[index].time.toString(),
-                                        style: TextStyle(
-                                            fontSize: 10.0,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w900),
-                                      )
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Flexible(
-                                        child: Text(
+                                      date: formatter
+                                          .format(data.item1[index].time),
+                                      message:
                                           data.item1[index].message.toString(),
-                                          style: TextStyle(
-                                              fontSize: 14.0,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w700),
-                                        ),
-                                      ),
-                                      Text(
-                                        HMSMessageRecipientValues
-                                                .getValueFromHMSMessageRecipientType(
-                                                    data
-                                                        .item1[index]
-                                                        .hmsMessageRecipient!
-                                                        .hmsMessageRecipientType)
-                                            .toLowerCase(),
-                                        style: TextStyle(
-                                            fontSize: 14.0,
-                                            color: Colors.blue,
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              decoration: BoxDecoration(
-                                  border: Border(
-                                left: BorderSide(
-                                  color: Colors.blue,
-                                  width: 5,
-                                ),
-                              )),
+                                      role: data.item1[index].hmsMessageRecipient ==
+                                              null
+                                          ? ""
+                                          : sender(data.item1[index]
+                                              .hmsMessageRecipient!))
+                                  : ReceiveMessageScreen(
+                                      message:
+                                          data.item1[index].message.toString(),
+                                      senderName:
+                                          data.item1[index].sender?.name ?? "",
+                                      date: formatter
+                                          .format(data.item1[index].time),
+                                      role: data.item1[index]
+                                                  .hmsMessageRecipient ==
+                                              null
+                                          ? ""
+                                          : sender(data.item1[index].hmsMessageRecipient!)),
                             ),
                           ),
                         );
                       },
                     ),
                   ),
+                  Divider(
+                    height: 5,
+                    color: Colors.grey,
+                  ),
                   Container(
-                    color: Colors.grey[700],
                     child: Row(
                       children: [
                         Container(
                           margin: EdgeInsets.only(bottom: 5.0, left: 5.0),
                           child: TextField(
-                            autofocus: true,
+                            style: GoogleFonts.inter(color: iconColor),
                             controller: messageTextController,
                             decoration: new InputDecoration(
                                 border: InputBorder.none,
@@ -229,7 +245,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                                     left: 15, bottom: 11, top: 11, right: 15),
                                 hintText: "Type a Message"),
                           ),
-                          width: widthOfScreen - 45.0,
+                          width: widthOfScreen - 60,
                         ),
                         GestureDetector(
                           onTap: () async {
@@ -257,10 +273,16 @@ class _ChatWidgetState extends State<ChatWidget> {
                                   .sendDirectMessage(message, peer!);
                             }
                             messageTextController.clear();
+                            _scrollDown();
                           },
-                          child: Icon(
-                            Icons.send,
-                            color: Colors.grey[300],
+                          child: CircleAvatar(
+                            radius: 20,
+                            backgroundColor: Colors.blue,
+                            child: Icon(
+                              Icons.send,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                           ),
                         )
                       ],
@@ -278,6 +300,9 @@ void chatMessages(BuildContext context) {
   MeetingStore meetingStore = context.read<MeetingStore>();
   showModalBottomSheet(
       context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
       builder: (ctx) => ChangeNotifierProvider.value(
           value: meetingStore, child: ChatWidget(meetingStore)),
       isScrollControlled: true);

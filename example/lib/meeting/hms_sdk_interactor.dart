@@ -1,6 +1,6 @@
-//Project imports
-import 'dart:io';
+//Dart imports
 
+//Project imports
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 
 class HMSSDKInteractor {
@@ -8,8 +8,15 @@ class HMSSDKInteractor {
   late List<HMSMessage> messages;
   late HMSSDK hmsSDK;
 
-  HMSSDKInteractor() {
-    hmsSDK = HMSSDK();
+  //Contains the default local camera mirroring settings
+  bool mirrorCamera = true;
+  //Contains the default RTC stats setting
+  bool showStats = false;
+  //Contains the default setting to jump directly in meeting i.e. skipping preview
+  bool skipPreview = false;
+
+  HMSSDKInteractor({String? appGroup, String? preferredExtension}) {
+    hmsSDK = HMSSDK(appGroup: appGroup, preferredExtension: preferredExtension);
     hmsSDK.build();
   }
 
@@ -35,11 +42,7 @@ class HMSSDKInteractor {
   }
 
   Future<bool> isScreenShareActive() async {
-    if (Platform.isAndroid) {
-      return await hmsSDK.isScreenShareActive();
-    } else {
-      return false;
-    }
+    return await hmsSDK.isScreenShareActive();
   }
 
   void sendBroadcastMessage(
@@ -116,7 +119,7 @@ class HMSSDKInteractor {
     hmsSDK.stopCapturing();
   }
 
-  Future<HMSPeer?> getLocalPeer() async {
+  Future<HMSLocalPeer?> getLocalPeer() async {
     return await hmsSDK.getLocalPeer();
   }
 
@@ -175,7 +178,6 @@ class HMSSDKInteractor {
   }
 
   Future<bool> isVideoMute(HMSPeer? peer) async {
-    // TODO: add permission checks in exmaple app UI
     return await hmsSDK.isVideoMute(peer: peer);
   }
 
@@ -193,12 +195,10 @@ class HMSSDKInteractor {
   }
 
   void unMuteAll() {
-    // TODO: add permission checks in exmaple app UI
     hmsSDK.unMuteAll();
   }
 
   void setPlayBackAllowed(bool allow) {
-    // TODO: add permission checks in exmaple app UI
     hmsSDK.setPlayBackAllowed(allow: allow);
   }
 
@@ -233,13 +233,18 @@ class HMSSDKInteractor {
   }
 
   void startHLSStreaming(
-      String meetingUrl, HMSActionResultListener hmsActionResultListener) {
+      String meetingUrl, HMSActionResultListener hmsActionResultListener,
+      {bool singleFilePerLayer = false, bool enableVOD = false}) {
     List<HMSHLSMeetingURLVariant> hmsHlsMeetingUrls = [];
 
     hmsHlsMeetingUrls.add(HMSHLSMeetingURLVariant(
         meetingUrl: meetingUrl, metadata: "HLS started from Flutter"));
+    HMSHLSRecordingConfig hmshlsRecordingConfig = HMSHLSRecordingConfig(
+        singleFilePerLayer: singleFilePerLayer, videoOnDemand: enableVOD);
+    HMSHLSConfig hmshlsConfig = HMSHLSConfig(
+        meetingURLVariant: hmsHlsMeetingUrls,
+        hmsHLSRecordingConfig: hmshlsRecordingConfig);
 
-    HMSHLSConfig hmshlsConfig = new HMSHLSConfig(hmsHlsMeetingUrls);
     hmsSDK.startHlsStreaming(
         hmshlsConfig: hmshlsConfig,
         hmsActionResultListener: hmsActionResultListener);
@@ -262,5 +267,13 @@ class HMSSDKInteractor {
 
   Future<List<HMSPeer>?> getPeers() async {
     return await hmsSDK.getPeers();
+  }
+
+  void addStatsListener(HMSStatsListener listener) {
+    hmsSDK.addStatsListener(listener: listener);
+  }
+
+  void removeStatsListener(HMSStatsListener listener) {
+    hmsSDK.removeStatsListener(listener: listener);
   }
 }

@@ -1,11 +1,3 @@
-///HMSSDK will contain all the functionalities related to meeting and preview.
-///
-///Just create instance of [HMSSDK] and use the functionality which is present.
-///
-///All methods related to meeting, preview and their listeners are present here.
-
-// Project imports:
-import 'package:flutter/widgets.dart';
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 import 'package:hmssdk_flutter/src/manager/hms_sdk_manager.dart';
 import 'package:hmssdk_flutter/src/service/platform_service.dart';
@@ -24,23 +16,29 @@ import '../hmssdk_flutter.dart';
 /// **Broadcast** - A local peer can send any message/data to all remote peers in the room
 ///
 /// HMSSDK has other methods which the client app can use to get more info about the Room, Peer and Tracks
-class HMSSDK with WidgetsBindingObserver {
-  ///join meeting by passing HMSConfig instance to it.
+///
 
-  HMSTrackSetting? hmsTrackSetting;
-  bool previewState = false;
-
-  HMSSDK({this.hmsTrackSetting});
+class HMSSDK {
+  HMSSDK({this.hmsTrackSetting, this.appGroup, this.preferredExtension});
 
   /// The build function should be called after creating an instance of the [HMSSDK].
   /// Await the result & if true then create [HMSConfig] object to join or preview a room.
   Future<bool> build() async {
-    return await HmsSdkManager().createHMSSdk(hmsTrackSetting);
+    return await HmsSdkManager()
+        .createHMSSdk(hmsTrackSetting, appGroup, preferredExtension);
   }
 
   ///add MeetingListener it will add all the listeners.
   void addUpdateListener({required HMSUpdateListener listener}) {
     PlatformService.addUpdateListener(listener);
+  }
+
+  void addStatsListener({required HMSStatsListener listener}) {
+    PlatformService.addRTCStatsListener(listener);
+  }
+
+  void removeStatsListener({required HMSStatsListener listener}) {
+    PlatformService.removeRTCStatsListener(listener);
   }
 
   /// Join the room with configuration options passed as a [HMSConfig] object
@@ -55,7 +53,6 @@ class HMSSDK with WidgetsBindingObserver {
           isTerminal: false,
           params: {...config.getJson()});
     }
-    WidgetsBinding.instance!.addObserver(this);
     return await PlatformService.invokeMethod(PlatformMethod.join,
         arguments: {...config.getJson()});
   }
@@ -92,7 +89,6 @@ class HMSSDK with WidgetsBindingObserver {
             hmsException: HMSException.fromMap(result["error"]));
       }
     }
-    WidgetsBinding.instance!.removeObserver(this);
   }
 
   /// To switch local peer's audio on/off.
@@ -645,20 +641,33 @@ class HMSSDK with WidgetsBindingObserver {
   /// API to start screen share of your android device. Note: This API is not available on iOS.
   /// [hmsActionResultListener] is a callback instance on which [HMSActionResultListener.onSuccess]
   ///  and [HMSActionResultListener.onException] will be called
+  /// [preferredExtension] is only used for screen share (broadcast screen) in iOS.
   void startScreenShare(
       {HMSActionResultListener? hmsActionResultListener}) async {
-    var result = await PlatformService.invokeMethod(
-      PlatformMethod.startScreenShare,
-    );
+    HMSLocalPeer? localPeer = await getLocalPeer();
+    if (localPeer?.role.publishSettings?.allowed.contains("screen") ?? false) {
+      var result =
+          await PlatformService.invokeMethod(PlatformMethod.startScreenShare);
 
-    if (hmsActionResultListener != null) {
-      if (result == null) {
-        hmsActionResultListener.onSuccess(
-            methodType: HMSActionResultListenerMethod.startScreenShare);
-      } else {
+      if (hmsActionResultListener != null) {
+        if (result == null) {
+          hmsActionResultListener.onSuccess(
+              methodType: HMSActionResultListenerMethod.startScreenShare);
+        } else {
+          hmsActionResultListener.onException(
+              methodType: HMSActionResultListenerMethod.startScreenShare,
+              hmsException: HMSException.fromMap(result["error"]));
+        }
+      }
+    } else {
+      if (hmsActionResultListener != null) {
         hmsActionResultListener.onException(
             methodType: HMSActionResultListenerMethod.startScreenShare,
-            hmsException: HMSException.fromMap(result["error"]));
+            hmsException: HMSException(
+                message: "Permission denied",
+                description: "Screen share is not included in publish settings",
+                action: "Enable screen share from dashboard for current role",
+                isTerminal: false));
       }
     }
   }
@@ -675,9 +684,8 @@ class HMSSDK with WidgetsBindingObserver {
   ///  and [HMSActionResultListener.onException] will be called
   void stopScreenShare(
       {HMSActionResultListener? hmsActionResultListener}) async {
-    var result = await PlatformService.invokeMethod(
-      PlatformMethod.stopScreenShare,
-    );
+    var result =
+        await PlatformService.invokeMethod(PlatformMethod.stopScreenShare);
     if (hmsActionResultListener != null) {
       if (result == null) {
         hmsActionResultListener.onSuccess(
@@ -700,6 +708,7 @@ class HMSSDK with WidgetsBindingObserver {
     PlatformService.removePreviewListener(listener);
   }
 
+  ///Method to start HMSLogger for logs
   void startHMSLogger(
       {required HMSLogLevel webRtclogLevel, required HMSLogLevel logLevel}) {
     PlatformService.invokeMethod(PlatformMethod.startHMSLogger, arguments: {
@@ -709,51 +718,29 @@ class HMSSDK with WidgetsBindingObserver {
     });
   }
 
+  ///Method to remove attached HMSLogger
   void removeHMSLogger() {
     PlatformService.invokeMethod(PlatformMethod.removeHMSLogger);
   }
 
+  ///Method to add Log Listener to listen to the logs
   void addLogListener({required HMSLogListener hmsLogListener}) {
     PlatformService.addLogsListener(hmsLogListener);
   }
 
+  ///Method to remove Log Listener
   void removeLogListener({required HMSLogListener hmsLogListener}) {
     PlatformService.removeLogsListener(hmsLogListener);
   }
 
-  bool isLocalVideoOn = false;
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) async {
-    super.didChangeAppLifecycleState(state);
+  /// To modify local peer's audio & video track settings use the [hmsTrackSetting]. Only required for advanced use-cases.
+  HMSTrackSetting? hmsTrackSetting;
 
-    if (state == AppLifecycleState.resumed) {
-      List<HMSPeer>? peersList = await getPeers();
+  /// [appGroup] is only used for screen share (broadcast screen) in iOS.
+  String? appGroup;
 
-      peersList?.forEach((element) {
-        if (!element.isLocal) {
-          (element.audioTrack as HMSRemoteAudioTrack?)?.setVolume(10.0);
-          element.auxiliaryTracks?.forEach((element) {
-            if (element.kind == HMSTrackKind.kHMSTrackKindAudio) {
-              (element as HMSRemoteAudioTrack?)?.setVolume(10.0);
-            }
-          });
-        } else {
-          if ((element.videoTrack != null && isLocalVideoOn)) startCapturing();
-          isLocalVideoOn = false;
-        }
-      });
-    } else if (state == AppLifecycleState.paused) {
-      HMSLocalPeer? localPeer = await getLocalPeer();
-      if (localPeer != null && !(localPeer.videoTrack?.isMute ?? true)) {
-        isLocalVideoOn = true;
-        stopCapturing();
-      }
-    } else if (state == AppLifecycleState.inactive) {
-      HMSLocalPeer? localPeer = await getLocalPeer();
-      if (localPeer != null && !(localPeer.videoTrack?.isMute ?? true)) {
-        isLocalVideoOn = true;
-        stopCapturing();
-      }
-    }
-  }
+  /// [preferredExtension] is only used for screen share (broadcast screen) in iOS.
+  String? preferredExtension;
+
+  bool previewState = false;
 }

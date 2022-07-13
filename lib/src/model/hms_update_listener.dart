@@ -51,7 +51,7 @@ abstract class HMSUpdateListener {
   ///
   /// and SDK has already retried to fix the error
   /// - Parameter error: the error that occurred
-  void onError({required HMSException error});
+  void onHMSError({required HMSException error});
 
   /// This is called when there is a new broadcast message from any other peer in the room
   ///
@@ -93,28 +93,4 @@ abstract class HMSUpdateListener {
   ///- Paramter hmsPeerRemovedFromPeer - it consists info about who removed you and why.
   void onRemovedFromRoom(
       {required HMSPeerRemovedFromPeer hmsPeerRemovedFromPeer});
-
-  void onLocalAudioStats(
-      {required HMSLocalAudioStats hmsLocalAudioStats,
-      required HMSLocalAudioTrack track,
-      required HMSPeer peer});
-
-  void onLocalVideoStats(
-      {required HMSLocalVideoStats hmsLocalVideoStats,
-      required HMSLocalVideoTrack track,
-      required HMSPeer peer});
-
-  void onRemoteAudioStats(
-      {required HMSRemoteAudioStats hmsRemoteAudioStats,
-      required HMSRemoteAudioTrack track,
-      required HMSPeer peer});
-
-  void onRemoteVideoStats(
-      {required HMSRemoteVideoStats hmsRemoteVideoStats,
-      required HMSRemoteVideoTrack track,
-      required HMSPeer peer});
-
-  void onRTCStats({
-    required HMSRTCStatsReport hmsrtcStatsReport,
-  });
 }

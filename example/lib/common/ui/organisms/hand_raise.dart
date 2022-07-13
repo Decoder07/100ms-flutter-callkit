@@ -1,6 +1,10 @@
+//Package imports
 import 'package:flutter/material.dart';
-import 'package:hmssdk_flutter_example/meeting/peer_track_node.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+
+//Project imports
+import 'package:hmssdk_flutter_example/meeting/peer_track_node.dart';
 
 class HandRaise extends StatelessWidget {
   @override
@@ -11,13 +15,15 @@ class HandRaise extends StatelessWidget {
               ? Positioned(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                    child: Image.asset(
-                      'assets/icons/raise_hand.png',
-                      color: Colors.amber.shade300,
+                    child: SvgPicture.asset(
+                      "assets/icons/hand.svg",
+                      color: Colors.yellow,
+                      height: 35,
                     ),
                   ),
-                  bottom: 5.0,
-                  left: 5.0,
+                  top: 30.0,
+                  right: 0,
+                  left: 0,
                 )
               : Container();
         },

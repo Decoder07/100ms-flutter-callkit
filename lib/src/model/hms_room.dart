@@ -11,6 +11,7 @@
 // Project imports:
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 import 'package:hmssdk_flutter/src/model/hms_browser_recording_state.dart';
+import 'package:hmssdk_flutter/src/model/hms_hls_recording_state.dart';
 import 'package:hmssdk_flutter/src/model/hms_server_recording_state.dart';
 import 'hms_hls_streaming_state.dart';
 import 'hms_rtmp_streaming_state.dart';
@@ -24,8 +25,10 @@ class HMSRoom {
   HMSRtmpStreamingState? hmsRtmpStreamingState;
   HMSServerRecordingState? hmsServerRecordingState;
   HMSHLSStreamingState? hmshlsStreamingState;
+  HMSHLSRecordingState? hmshlsRecordingState;
   int peerCount;
   int startedAt;
+  String sessionId;
 
   ///[peers] list which are in the room.
   final List<HMSPeer>? peers;
@@ -39,8 +42,10 @@ class HMSRoom {
       this.hmsRtmpStreamingState,
       this.hmsBrowserRecordingState,
       this.hmshlsStreamingState,
+      this.hmshlsRecordingState,
       this.peerCount = 0,
-      this.startedAt = 0});
+      this.startedAt = 0,
+      required this.sessionId});
 
   factory HMSRoom.fromMap(Map map) {
     List<HMSPeer> peers = [];
@@ -68,16 +73,20 @@ class HMSRoom {
         hmshlsStreamingState: map["hls_streaming_state"] != null
             ? HMSHLSStreamingState.fromMap(map["hls_streaming_state"] as Map)
             : null,
+        hmshlsRecordingState: map["hls_recording_state"] != null
+            ? HMSHLSRecordingState.fromMap(map["hls_recording_state"] as Map)
+            : null,
         id: map['id'],
         name: map['name'],
         peers: peers,
         metaData: map['meta_data'],
         peerCount: map["peer_count"] != null ? map["peer_count"] : 0,
-        startedAt: map["started_at"] != null ? map["started_at"] : 0);
+        startedAt: map["started_at"] != null ? map["started_at"] : 0,
+        sessionId: map["session_id"] != null ? map["session_id"] : "");
   }
 
   @override
   String toString() {
-    return 'HMSRoom{id: $id, name: $name, metaData: $metaData, hmsBrowserRecordingState: $hmsBrowserRecordingState, hmsRtmpStreamingState: $hmsRtmpStreamingState, hmsServerRecordingState: $hmsServerRecordingState, peers: $peers}';
+    return 'HMSRoom{id: $id, name: $name, metaData: $metaData, hmsBrowserRecordingState: $hmsBrowserRecordingState, hmsRtmpStreamingState: $hmsRtmpStreamingState, hmsServerRecordingState: $hmsServerRecordingState, peers: $peers, sessiosId: $sessionId}';
   }
 }
