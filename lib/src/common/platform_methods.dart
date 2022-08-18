@@ -23,9 +23,13 @@ enum PlatformMethod {
   onError,
   onMessage,
 
-  ///when you want to send a message.
+  ///when you want to send a broadcast message.
   sendBroadcastMessage,
+
+  ///when you want to send a direct message.
   sendDirectMessage,
+
+  ///when you want to send a group message.
   sendGroupMessage,
   onUpdateSpeaker,
 
@@ -37,6 +41,8 @@ enum PlatformMethod {
 
   ///switch mic on/off.
   switchAudio,
+
+  ///switch video on/off
   switchVideo,
 
   ///switch your camera.
@@ -75,30 +81,74 @@ enum PlatformMethod {
   ///get list of roles using this.
   getRoles,
   changeTrackState,
+
+  ///end room
   endRoom,
+
+  ///remove peer from room
   removePeer,
+  //mute all peers in room
   muteAll,
+  //send unmute request to all peer
   unMuteAll,
+
+  //get local peer
   getLocalPeer,
+  //get list of all remote peers
   getRemotePeers,
+  //get list of all peers
   getPeers,
   unknown,
   startHMSLogger,
   removeHMSLogger,
   changeTrackStateForRole,
+
+  ///start rtmp or recording
   startRtmpOrRecording,
+
+  ///stop rtmp and recording
   stopRtmpAndRecording,
   build,
   getRoom,
   updateHMSLocalVideoTrackSettings,
+
+  ///change metadata for local peer
   changeMetadata,
   setPlayBackAllowed,
   setVolume,
+
+  ///change name of local peer
   changeName,
+
+  ///start HLS Streaming
   startHlsStreaming,
+
+  ///stop HLS Streaming
   stopHlsStreaming,
+
+  ///Get List all tracks
   getAllTracks,
+
+  ///Get track with the help of trackId
   getTrackById,
+  startStatsListener,
+  removeStatsListener,
+  getAudioDevicesList,
+  getCurrentAudioDevice,
+  switchAudioOutput,
+  startAudioShare,
+  stopAudioShare,
+  setAudioMixingMode,
+  pauseAudioShare,
+  playAudioShare,
+  resumeAudioShare,
+  setAudioShareVolume,
+  audioSharePlaying,
+  audioShareCurrentTime,
+  audioShareDuration,
+  getTrackSettings,
+  setTrackSettings,
+  destroy
 }
 
 extension PlatformMethodValues on PlatformMethod {
@@ -259,6 +309,42 @@ extension PlatformMethodValues on PlatformMethod {
         return "get_all_tracks";
       case PlatformMethod.getTrackById:
         return "get_track_by_id";
+      case PlatformMethod.startStatsListener:
+        return "start_stats_listener";
+      case PlatformMethod.removeStatsListener:
+        return "remove_stats_listener";
+      case PlatformMethod.getAudioDevicesList:
+        return "get_audio_devices_list";
+      case PlatformMethod.getCurrentAudioDevice:
+        return "get_current_audio_device";
+      case PlatformMethod.switchAudioOutput:
+        return "switch_audio_output";
+      case PlatformMethod.startAudioShare:
+        return "start_audio_share";
+      case PlatformMethod.stopAudioShare:
+        return "stop_audio_share";
+      case PlatformMethod.setAudioMixingMode:
+        return "set_audio_mixing_mode";
+      case PlatformMethod.pauseAudioShare:
+        return "pause_audio_share";
+      case PlatformMethod.playAudioShare:
+        return "play_audio_share";
+      case PlatformMethod.resumeAudioShare:
+        return "resume_audio_share";
+      case PlatformMethod.setAudioShareVolume:
+        return "set_audio_share_volume";
+      case PlatformMethod.audioSharePlaying:
+        return "audio_share_playing";
+      case PlatformMethod.audioShareCurrentTime:
+        return "audio_share_current_time";
+      case PlatformMethod.audioShareDuration:
+        return "audio_share_duration";
+      case PlatformMethod.getTrackSettings:
+        return "get_track_settings";
+      case PlatformMethod.setTrackSettings:
+        return "set_track_settings";
+      case PlatformMethod.destroy:
+        return "destroy";
       default:
         return 'unknown';
     }
@@ -425,6 +511,42 @@ extension PlatformMethodValues on PlatformMethod {
         return PlatformMethod.getTrackById;
       case "get_all_tracks":
         return PlatformMethod.getAllTracks;
+      case "start_stats_listener":
+        return PlatformMethod.startStatsListener;
+      case "remove_stats_listener":
+        return PlatformMethod.removeStatsListener;
+      case "get_audio_devices_list":
+        return PlatformMethod.getAudioDevicesList;
+      case "get_current_audio_device":
+        return PlatformMethod.getCurrentAudioDevice;
+      case "switch_audio_output":
+        return PlatformMethod.switchAudioOutput;
+      case "start_audio_share":
+        return PlatformMethod.startAudioShare;
+      case "stop_audio_share":
+        return PlatformMethod.stopAudioShare;
+      case "set_audio_mixing_mode":
+        return PlatformMethod.setAudioMixingMode;
+      case "pause_audio_share":
+        return PlatformMethod.pauseAudioShare;
+      case "play_audio_share":
+        return PlatformMethod.playAudioShare;
+      case "resume_audio_share":
+        return PlatformMethod.resumeAudioShare;
+      case "set_audio_share_volume":
+        return PlatformMethod.setAudioShareVolume;
+      case "audio_share_playing":
+        return PlatformMethod.audioSharePlaying;
+      case "audio_share_current_time":
+        return PlatformMethod.audioShareCurrentTime;
+      case "audio_share_duration":
+        return PlatformMethod.audioShareDuration;
+      case "get_track_settings":
+        return PlatformMethod.getTrackSettings;
+      case "set_track_settings":
+        return PlatformMethod.setTrackSettings;
+      case "destroy":
+        return PlatformMethod.destroy;
       default:
         return PlatformMethod.unknown;
     }

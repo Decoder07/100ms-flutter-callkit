@@ -14,11 +14,12 @@ class HMSVideoTrackSettingsExtension {
             map["video_codec"] = getValueOfHMSVideoCodec(hmsVideoTrackSettings?.codec)!!
             map["max_bit_rate"] = hmsVideoTrackSettings?.maxBitRate!!
             map["max_frame_rate"] = hmsVideoTrackSettings.maxFrameRate
+            map["disable_auto_resize"] = hmsVideoTrackSettings.disableAutoResize
             return  map
         }
 
 
-        fun getValueOfHMSCameraFacing(cameraFacing: HMSVideoTrackSettings.CameraFacing?):String?{
+        private fun getValueOfHMSCameraFacing(cameraFacing: HMSVideoTrackSettings.CameraFacing?):String?{
             if(cameraFacing==null)return null
 
             return when(cameraFacing){
@@ -28,7 +29,7 @@ class HMSVideoTrackSettingsExtension {
             }
         }
 
-        fun getValueOfHMSVideoCodec(codec: HMSVideoCodec?):String?{
+        private fun getValueOfHMSVideoCodec(codec: HMSVideoCodec?):String?{
             if(codec==null)return null
 
             return when(codec){

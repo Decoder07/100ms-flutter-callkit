@@ -2,11 +2,21 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
-import 'package:hmssdk_flutter_example/manager/HmsSdkManager.dart';
+import 'package:hmssdk_flutter_example/common/util/utility_function.dart';
+import 'package:hmssdk_flutter_example/meeting/hms_sdk_interactor.dart';
 import 'package:hmssdk_flutter_example/service/room_service.dart';
 
 class PreviewStore extends ChangeNotifier
     implements HMSPreviewListener, HMSLogListener {
+  HMSSDKInteractor? hmsSDKInteractor;
+
+  PreviewStore() {
+    hmsSDKInteractor = HMSSDKInteractor(
+        appGroup: "group.flutterhms",
+        preferredExtension:
+            "live.100ms.flutter.FlutterBroadcastUploadExtension");
+  }
+
   List<HMSVideoTrack> localTracks = [];
 
   HMSPeer? peer;
@@ -22,12 +32,16 @@ class PreviewStore extends ChangeNotifier
 
   bool isRecordingStarted = false;
 
+  bool isStreamingStarted = false;
+
   List<HMSPeer> peers = [];
 
   int? networkQuality;
 
+  String meetingUrl = "";
+
   @override
-  void onError({required HMSException error}) {
+  void onHMSError({required HMSException error}) {
     updateError(error);
   }
 
@@ -41,6 +55,11 @@ class PreviewStore extends ChangeNotifier
           isHLSLink = true;
           notifyListeners();
         }
+        if (!each.role.publishSettings!.allowed.contains("video")) {
+          isVideoOn = false;
+          notifyListeners();
+        }
+
         break;
       }
     }
@@ -51,25 +70,27 @@ class PreviewStore extends ChangeNotifier
       }
     }
     this.localTracks = videoTracks;
+    Utilities.saveStringData(key: "meetingLink", value: this.meetingUrl);
     notifyListeners();
   }
 
-  Future<bool> startPreview(
-      {required String user, required String roomId}) async {
+  Future<String> startPreview(
+      {required String user, required String meetingLink}) async {
     List<String?>? token =
-        await RoomService().getToken(user: user, room: roomId);
+        await RoomService().getToken(user: user, room: meetingLink);
 
-    if (token == null) return false;
-    if (token[0] == null) return false;
+    if (token == null) return "Connection Error";
+    if (token[0] == null) return "Token Error";
     FirebaseCrashlytics.instance.setUserIdentifier(token[0]!);
     HMSConfig config = HMSConfig(
         authToken: token[0]!,
         userName: user,
         endPoint: token[1] == "true" ? "" : "https://qa-init.100ms.live/init",
         captureNetworkQualityInPreview: true);
-
-    HmsSdkManager.hmsSdkInteractor?.preview(config: config);
-    return true;
+    hmsSDKInteractor!.addPreviewListener(this);
+    hmsSDKInteractor!.preview(config: config);
+    meetingUrl = meetingLink;
+    return "";
   }
 
   @override
@@ -108,11 +129,15 @@ class PreviewStore extends ChangeNotifier
         isRecordingStarted = room.hmsServerRecordingState?.running ?? false;
         break;
 
+      case HMSRoomUpdate.hlsRecordingStateUpdated:
+        isRecordingStarted = room.hmshlsRecordingState?.running ?? false;
+        break;
+
       case HMSRoomUpdate.rtmpStreamingStateUpdated:
-        isRecordingStarted = room.hmsRtmpStreamingState?.running ?? false;
+        isStreamingStarted = room.hmsRtmpStreamingState?.running ?? false;
         break;
       case HMSRoomUpdate.hlsStreamingStateUpdated:
-        isRecordingStarted = room.hmshlsStreamingState?.running ?? false;
+        isStreamingStarted = room.hmshlsStreamingState?.running ?? false;
         break;
       default:
         break;
@@ -120,40 +145,36 @@ class PreviewStore extends ChangeNotifier
     notifyListeners();
   }
 
-  void addPreviewListener() {
-    HmsSdkManager.hmsSdkInteractor?.addPreviewListener(this);
-  }
-
   void removePreviewListener() {
-    HmsSdkManager.hmsSdkInteractor?.removePreviewListener(this);
+    hmsSDKInteractor!.removePreviewListener(this);
   }
 
   void stopCapturing() {
-    HmsSdkManager.hmsSdkInteractor?.stopCapturing();
+    hmsSDKInteractor!.stopCapturing();
   }
 
   void startCapturing() {
-    HmsSdkManager.hmsSdkInteractor?.startCapturing();
+    hmsSDKInteractor!.startCapturing();
   }
 
   void switchVideo({bool isOn = false}) {
-    HmsSdkManager.hmsSdkInteractor?.switchVideo(isOn: isOn);
+    hmsSDKInteractor!.switchVideo(isOn: isOn);
     isVideoOn = !isVideoOn;
     notifyListeners();
   }
 
   void switchAudio({bool isOn = false}) {
-    HmsSdkManager.hmsSdkInteractor?.switchAudio(isOn: isOn);
+    hmsSDKInteractor!.switchAudio(isOn: isOn);
     isAudioOn = !isAudioOn;
     notifyListeners();
   }
 
   void addLogsListener(HMSLogListener hmsLogListener) {
-    HmsSdkManager.hmsSdkInteractor?.addLogsListener(hmsLogListener);
+    hmsSDKInteractor!.addLogsListener(hmsLogListener);
   }
 
   void removeLogsListener(HMSLogListener hmsLogListener) {
-    HmsSdkManager.hmsSdkInteractor?.removeLogsListener(hmsLogListener);
+    hmsSDKInteractor!.removeLogsListener(hmsLogListener);
   }
 
   @override
@@ -163,5 +184,16 @@ class PreviewStore extends ChangeNotifier
 
   void updateError(HMSException error) {
     this.error = error;
+  }
+
+  void destroy() {
+    hmsSDKInteractor!.removePreviewListener(this);
+    hmsSDKInteractor!.destroy();
+    hmsSDKInteractor = null;
+  }
+
+  void leave() {
+    hmsSDKInteractor!.leave();
+    destroy();
   }
 }

@@ -1,6 +1,6 @@
-//Project imports
-import 'dart:io';
+//Dart imports
 
+//Project imports
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 
 class HMSSDKInteractor {
@@ -8,17 +8,35 @@ class HMSSDKInteractor {
   late List<HMSMessage> messages;
   late HMSSDK hmsSDK;
 
-  HMSSDKInteractor() {
-    hmsSDK = HMSSDK();
+  //Contains the default local camera mirroring settings
+  bool mirrorCamera = true;
+  //Contains the default RTC stats setting
+  bool showStats = false;
+  //Contains the default setting to jump directly in meeting i.e. skipping preview
+  bool skipPreview = false;
+
+  HMSSDKInteractor({String? appGroup, String? preferredExtension}) {
+    HMSTrackSetting trackSetting = HMSTrackSetting(
+        audioTrackSetting: HMSAudioTrackSetting(
+            audioSource: HMSAudioMixerSource(node: [
+          HMSAudioFilePlayerNode("audioFilePlayerNode"),
+          HMSMicNode(),
+          HMSScreenBroadcastAudioReceiverNode()
+        ])),
+        videoTrackSetting: HMSVideoTrackSetting());
+    hmsSDK = HMSSDK(
+        appGroup: appGroup,
+        preferredExtension: preferredExtension,
+        hmsTrackSetting: trackSetting);
     hmsSDK.build();
   }
 
-  void join({required HMSConfig config}) async {
+  void join({required HMSConfig config}) {
     this.config = config;
     hmsSDK.join(config: this.config);
   }
 
-  void leave({required HMSActionResultListener hmsActionResultListener}) async {
+  void leave({HMSActionResultListener? hmsActionResultListener}) {
     hmsSDK.leave(hmsActionResultListener: hmsActionResultListener);
   }
 
@@ -35,11 +53,7 @@ class HMSSDKInteractor {
   }
 
   Future<bool> isScreenShareActive() async {
-    if (Platform.isAndroid) {
-      return await hmsSDK.isScreenShareActive();
-    } else {
-      return false;
-    }
+    return await hmsSDK.isScreenShareActive();
   }
 
   void sendBroadcastMessage(
@@ -51,7 +65,7 @@ class HMSSDKInteractor {
   }
 
   void sendDirectMessage(String message, HMSPeer peerTo,
-      HMSActionResultListener hmsActionResultListener) async {
+      HMSActionResultListener hmsActionResultListener) {
     hmsSDK.sendDirectMessage(
         message: message,
         peerTo: peerTo,
@@ -60,7 +74,7 @@ class HMSSDKInteractor {
   }
 
   void sendGroupMessage(String message, List<HMSRole> hmsRolesTo,
-      HMSActionResultListener hmsActionResultListener) async {
+      HMSActionResultListener hmsActionResultListener) {
     hmsSDK.sendGroupMessage(
         message: message,
         hmsRolesTo: hmsRolesTo,
@@ -68,7 +82,7 @@ class HMSSDKInteractor {
         hmsActionResultListener: hmsActionResultListener);
   }
 
-  Future<void> preview({required HMSConfig config}) async {
+  Future<void> preview({required HMSConfig config}) {
     this.config = config;
     return hmsSDK.preview(config: config);
   }
@@ -116,7 +130,7 @@ class HMSSDKInteractor {
     hmsSDK.stopCapturing();
   }
 
-  Future<HMSPeer?> getLocalPeer() async {
+  Future<HMSLocalPeer?> getLocalPeer() async {
     return await hmsSDK.getLocalPeer();
   }
 
@@ -175,7 +189,6 @@ class HMSSDKInteractor {
   }
 
   Future<bool> isVideoMute(HMSPeer? peer) async {
-    // TODO: add permission checks in exmaple app UI
     return await hmsSDK.isVideoMute(peer: peer);
   }
 
@@ -193,12 +206,10 @@ class HMSSDKInteractor {
   }
 
   void unMuteAll() {
-    // TODO: add permission checks in exmaple app UI
     hmsSDK.unMuteAll();
   }
 
   void setPlayBackAllowed(bool allow) {
-    // TODO: add permission checks in exmaple app UI
     hmsSDK.setPlayBackAllowed(allow: allow);
   }
 
@@ -232,14 +243,19 @@ class HMSSDKInteractor {
         name: name, hmsActionResultListener: hmsActionResultListener);
   }
 
-  void startHLSStreaming(
-      String meetingUrl, HMSActionResultListener hmsActionResultListener) {
-    List<HMSHLSMeetingURLVariant> hmsHlsMeetingUrls = [];
+  void startHLSStreaming(HMSActionResultListener hmsActionResultListener,
+      {String? meetingUrl,
+      required HMSHLSRecordingConfig hmshlsRecordingConfig}) {
+    List<HMSHLSMeetingURLVariant>? hmsHlsMeetingUrls;
+    if (meetingUrl != null) {
+      hmsHlsMeetingUrls = [];
+      hmsHlsMeetingUrls.add(HMSHLSMeetingURLVariant(
+          meetingUrl: meetingUrl, metadata: "HLS started from Flutter"));
+    }
+    HMSHLSConfig hmshlsConfig = HMSHLSConfig(
+        meetingURLVariant: hmsHlsMeetingUrls,
+        hmsHLSRecordingConfig: hmshlsRecordingConfig);
 
-    hmsHlsMeetingUrls.add(HMSHLSMeetingURLVariant(
-        meetingUrl: meetingUrl, metadata: "HLS started from Flutter"));
-
-    HMSHLSConfig hmshlsConfig = new HMSHLSConfig(hmsHlsMeetingUrls);
     hmsSDK.startHlsStreaming(
         hmshlsConfig: hmshlsConfig,
         hmsActionResultListener: hmsActionResultListener);
@@ -262,5 +278,51 @@ class HMSSDKInteractor {
 
   Future<List<HMSPeer>?> getPeers() async {
     return await hmsSDK.getPeers();
+  }
+
+  void addStatsListener(HMSStatsListener listener) {
+    hmsSDK.addStatsListener(listener: listener);
+  }
+
+  void removeStatsListener(HMSStatsListener listener) {
+    hmsSDK.removeStatsListener(listener: listener);
+  }
+
+  Future<List<HMSAudioDevice>> getAudioDevicesList() async {
+    return await hmsSDK.getAudioDevicesList();
+  }
+
+  Future<HMSAudioDevice> getCurrentAudioDevice() async {
+    return await hmsSDK.getCurrentAudioDevice();
+  }
+
+  void switchAudioOutput(HMSAudioDevice audioDevice) {
+    hmsSDK.switchAudioOutput(audioDevice: audioDevice);
+  }
+
+  void startAudioShare({HMSActionResultListener? hmsActionResultListener}) {
+    hmsSDK.startAudioShare(hmsActionResultListener: hmsActionResultListener);
+  }
+
+  void stopAudioShare({HMSActionResultListener? hmsActionResultListener}) {
+    hmsSDK.stopAudioShare(hmsActionResultListener: hmsActionResultListener);
+  }
+
+  void setAudioMixingMode(HMSAudioMixingMode audioMixingMode) {
+    hmsSDK.setAudioMixingMode(audioMixingMode: audioMixingMode);
+  }
+
+  Future<HMSTrackSetting> getTrackSettings() async {
+    return await hmsSDK.getTrackSettings();
+  }
+
+  void setTrackSettings(
+      {HMSActionResultListener? hmsActionResultListener,
+      required HMSTrackSetting hmsTrackSetting}) {
+    hmsSDK.setTrackSettings(hmsTrackSetting: hmsTrackSetting);
+  }
+
+  void destroy() {
+    hmsSDK.destroy();
   }
 }
