@@ -2,9 +2,6 @@
 import 'dart:async';
 
 //Package imports
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,22 +21,14 @@ import 'package:uni_links/uni_links.dart';
 //Project imports
 import './logs/custom_singleton_logger.dart';
 
-bool _initialURILinkHandled = false;
 StreamSubscription? _streamSubscription;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
   Wakelock.enable();
   Provider.debugCheckInvalidValueType = null;
 
-  // Get any initial links
-  final PendingDynamicLinkData? initialLink =
-      await FirebaseDynamicLinks.instance.getInitialLink();
-
-  runZonedGuarded(() => runApp(HMSExampleApp(initialLink: initialLink?.link)),
-      FirebaseCrashlytics.instance.recordError);
+  runZonedGuarded(() => runApp(HMSExampleApp()), ((error, stack) => {}));
 }
 
 class HMSExampleApp extends StatefulWidget {
@@ -75,84 +64,7 @@ class _HMSExampleAppState extends State<HMSExampleApp> {
   @override
   void initState() {
     super.initState();
-    _initURIHandler();
-    _incomingLinkHandler();
-    initDynamicLinks();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  }
-
-  Future<void> _initURIHandler() async {
-    if (!_initialURILinkHandled) {
-      _initialURILinkHandled = true;
-      try {
-        if (widget.initialLink != null) {
-          return;
-        }
-        _currentURI = await getInitialUri();
-        if (_currentURI != null) {
-          if (!mounted) {
-            return;
-          }
-          setState(() {});
-        }
-      } on PlatformException {
-        debugPrint("Failed to receive initial uri");
-      } on FormatException {
-        if (!mounted) {
-          return;
-        }
-      }
-    }
-  }
-
-  void _incomingLinkHandler() {
-    if (!kIsWeb) {
-      _streamSubscription = uriLinkStream.listen((Uri? uri) {
-        if (!mounted) {
-          return;
-        }
-        if (uri == null || !uri.toString().contains("100ms.live")) {
-          return;
-        }
-        setState(() {
-          _currentURI = uri;
-        });
-        String tempUri = uri.toString();
-        if (tempUri.contains("deep_link_id")) {
-          setState(() {
-            _currentURI =
-                Uri.parse(Utilities.fetchMeetingLinkFromFirebase(tempUri));
-          });
-        }
-      }, onError: (Object err) {
-        if (!mounted) {
-          return;
-        }
-      });
-    }
-  }
-
-  Future<void> initDynamicLinks() async {
-    FirebaseDynamicLinks.instance.onLink
-        .listen((PendingDynamicLinkData dynamicLinkData) {
-      if (!mounted) {
-        return;
-      }
-      if (dynamicLinkData.link.toString().length == 0) {
-        return;
-      }
-      setState(() {
-        _currentURI = dynamicLinkData.link;
-      });
-    }).onError((error) {
-      print('onLink error');
-      print(error.message);
-    });
-
-    if (widget.initialLink != null) {
-      _currentURI = widget.initialLink;
-      setState(() {});
-    }
   }
 
   @override
@@ -216,12 +128,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void getData() async {
-    String savedMeetingUrl = await Utilities.getStringData(key: 'meetingLink');
-    if (widget.deepLinkURL == null && savedMeetingUrl.isNotEmpty) {
-      meetingLinkController.text = savedMeetingUrl;
-    } else {
-      meetingLinkController.text = widget.deepLinkURL ?? "";
-    }
+    meetingLinkController.text =
+        "https://decoder.app.100ms.live/preview/xno-jwn-phi";
     int index = await Utilities.getIntData(key: 'mode');
     mode[index] = true;
     mode[1 - index] = false;

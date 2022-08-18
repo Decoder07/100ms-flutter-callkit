@@ -1,5 +1,4 @@
 //Package imports
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hmssdk_flutter_example/common/constant.dart';
@@ -1335,7 +1334,6 @@ class MeetingStore extends ChangeNotifier
       Map<String, dynamic>? arguments,
       required HMSException hmsException}) {
     this.hmsException = hmsException;
-    FirebaseCrashlytics.instance.log(hmsException.toString());
     switch (methodType) {
       case HMSActionResultListenerMethod.leave:
         Utilities.showToast("Leave Operation failed");

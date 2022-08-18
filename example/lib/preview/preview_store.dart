@@ -1,5 +1,4 @@
 //Package imports
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 import 'package:hmssdk_flutter_example/common/util/utility_function.dart';
@@ -81,7 +80,6 @@ class PreviewStore extends ChangeNotifier
 
     if (token == null) return "Connection Error";
     if (token[0] == null) return "Token Error";
-    FirebaseCrashlytics.instance.setUserIdentifier(token[0]!);
     HMSConfig config = HMSConfig(
         authToken: token[0]!,
         userName: user,
@@ -179,7 +177,6 @@ class PreviewStore extends ChangeNotifier
 
   @override
   void onLogMessage({required hmsLogList}) {
-    FirebaseCrashlytics.instance.log(hmsLogList.toString());
   }
 
   void updateError(HMSException error) {
