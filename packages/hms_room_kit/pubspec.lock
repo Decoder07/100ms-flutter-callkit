@@ -204,10 +204,10 @@ packages:
     dependency: "direct main"
     description:
       name: hmssdk_flutter
-      sha256: "2f689fad643f851447b2e95b55547cead6852fc6678c3c39fc62fb016754053e"
+      sha256: efc257a82187a9a5d675842650fa6ff0ff56487585dd24d38ac4237f492a21b5
       url: "https://pub.dev"
     source: hosted
-    version: "1.9.12"
+    version: "1.9.14"
   http:
     dependency: transitive
     description:
@@ -492,10 +492,10 @@ packages:
     dependency: transitive
     description:
       name: share_plus_platform_interface
-      sha256: df08bc3a07d01f5ea47b45d03ffcba1fa9cd5370fb44b3f38c70e42cced0f956
+      sha256: "251eb156a8b5fa9ce033747d73535bf53911071f8d3b6f4f0b578505ce0d4496"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.1"
+    version: "3.4.0"
   shared_preferences:
     dependency: "direct main"
     description:
