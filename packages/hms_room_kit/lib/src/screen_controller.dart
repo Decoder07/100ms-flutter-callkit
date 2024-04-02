@@ -46,6 +46,7 @@ class ScreenController extends StatefulWidget {
 class _ScreenControllerState extends State<ScreenController> {
   bool isPermissionGranted = false;
   late HMSSDKInteractor _hmsSDKInteractor;
+  var store;
   bool isLoading = true;
   HMSConfig? roomConfig;
   dynamic tokenData;
@@ -141,8 +142,8 @@ class _ScreenControllerState extends State<ScreenController> {
 
     _hmsSDKInteractor = HMSSDKInteractor(
         iOSScreenshareConfig: widget.options?.iOSScreenshareConfig,
-        joinWithMutedAudio: true,
-        joinWithMutedVideo: true,
+        joinWithMutedAudio: false,
+        joinWithMutedVideo: false,
         isSoftwareDecoderDisabled: AppDebugConfig.isSoftwareDecoderDisabled,
         isAudioMixerDisabled: AppDebugConfig.isAudioMixerDisabled,
         isPrebuilt: true);

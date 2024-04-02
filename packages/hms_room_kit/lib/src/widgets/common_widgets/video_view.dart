@@ -1,5 +1,8 @@
 //Package imports
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:hms_room_kit/hms_room_kit.dart';
 import 'package:provider/provider.dart';
 import 'package:tuple/tuple.dart';
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
@@ -7,7 +10,6 @@ import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 //Project imports
 import 'package:hms_room_kit/src/model/peer_track_node.dart';
 import 'package:hms_room_kit/src/meeting/meeting_store.dart';
-import 'package:hms_room_kit/src/widgets/peer_widgets/audio_level_avatar.dart';
 
 ///[VideoView] is a widget that renders the video of a peer
 ///It renders the video of the peer if the peer is not muted
@@ -60,14 +62,42 @@ class _VideoViewState extends State<VideoView> {
         builder: (_, data, __) {
           ///If the peer track node is null or the peer is muted or the peer is offscreen
           ///We render the avatar
-          if ((data.item1 == null) || data.item2 || data.item3) {
+          if ((data.item1 == null) ||
+              data.item2 ||
+              data.item3 ||
+              !(Constant.prebuiltOptions?.isVideoCall ?? false)) {
             return Semantics(
-                label: "fl_video_off",
-                child: AudioLevelAvatar(
-                  avatarRadius: widget.avatarRadius,
-                  avatarTitleFontSize: widget.avatarTitleFontSize,
-                  avatarTitleTextLineHeight: widget.avatarTitleTextLineHeight,
-                ));
+              label: "fl_video_off",
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Constant.prebuiltOptions?.userImgUrl != null
+                      ? Image.network(
+                          Constant.prebuiltOptions!.userImgUrl!,
+                          fit: BoxFit.fill,
+                        )
+                      : CircleAvatar(
+                          backgroundColor: Colors.blue.shade100,
+                          child: HMSTitleText(
+                              text: "D", textColor: HMSThemeColors.baseBlack),
+                        ),
+                  SizedBox(
+                    height: widget.viewSize?.height,
+                    width: widget.viewSize?.width,
+                    child: BackdropFilter(
+                      filter: (Constant.prebuiltOptions?.userImgUrl != null)
+                          ? ImageFilter.blur(sigmaX: 80, sigmaY: 80)
+                          : ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                        color: (Constant.prebuiltOptions?.userImgUrl != null)
+                            ? Colors.black.withOpacity(0)
+                            : Colors.blue.shade100.withOpacity(0.0),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
           } else {
             ///If the peer is not muted and not offscreen
             ///We render the video

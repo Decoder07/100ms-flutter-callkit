@@ -1,9 +1,11 @@
 //Dart imports
+import 'dart:async';
 import 'dart:developer';
 
 ///Package imports
 import 'package:flutter/cupertino.dart';
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
+import 'package:just_audio/just_audio.dart';
 
 ///Project imports
 import 'package:hms_room_kit/hms_room_kit.dart';
@@ -51,15 +53,32 @@ class PreviewStore extends ChangeNotifier
 
   int peerCount = 0;
 
+  AudioPlayer? audioPlayer;
+
+  Timer? timer;
+
   @override
   void onHMSError({required HMSException error}) {
     this.error = error;
     notifyListeners();
   }
 
+  void fetchRemotePeers() {
+    timer = Timer.periodic(Duration(seconds: 1), (_) async {
+      List<HMSPeer>? remotePeers =
+          await hmsSDKInteractor.hmsSDK.getRemotePeers();
+      log("looking for peers ${remotePeers?.length}");
+      if (remotePeers?.isNotEmpty ?? false) {
+        peerCount = remotePeers!.length;
+        notifyListeners();
+      }
+    });
+  }
+
   @override
   void onPreview({required HMSRoom room, required List<HMSTrack> localTracks}) {
     log("onPreview-> room: ${room.toString()}");
+    fetchRemotePeers();
     this.room = room;
     for (HMSPeer each in room.peers!) {
       if (each.isLocal) {
@@ -75,6 +94,9 @@ class PreviewStore extends ChangeNotifier
           isVideoOn = false;
         }
         peerCount = room.peerCount;
+        if (peerCount > 0) {
+          audioPlayer?.stop();
+        }
         notifyListeners();
         break;
       }
@@ -93,13 +115,16 @@ class PreviewStore extends ChangeNotifier
     getRoles();
     getCurrentAudioDevice();
     getAudioDevicesList();
-    toggleCameraMuteState();
-    toggleMicMuteState();
     notifyListeners();
   }
 
   void startPreview(
       {required String userName, required String tokenData}) async {
+    audioPlayer = AudioPlayer(handleInterruptions: false);
+    audioPlayer?.setAsset(
+        "packages/hms_room_kit/lib/src/assets/icons/dialing_ringtone.mp3");
+    audioPlayer?.setLoopMode(LoopMode.one);
+    audioPlayer?.play();
     HMSConfig joinRoomConfig = HMSConfig(
         authToken: tokenData,
         userName: userName,
@@ -174,6 +199,9 @@ class PreviewStore extends ChangeNotifier
         break;
       case HMSRoomUpdate.roomPeerCountUpdated:
         peerCount = room.peerCount;
+        if (peerCount > 0) {
+          audioPlayer?.stop();
+        }
         break;
       default:
         break;
@@ -220,6 +248,8 @@ class PreviewStore extends ChangeNotifier
   }
 
   void leave() {
+    audioPlayer?.stop();
+    timer?.cancel();
     hmsSDKInteractor.leave();
 
     ///Here we call the method passed by the user in HMSPrebuilt as a callback

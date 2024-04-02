@@ -5,6 +5,7 @@ import 'dart:async';
 
 ///Package imports
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:focus_detector/focus_detector.dart';
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 import 'package:provider/provider.dart';
@@ -14,9 +15,6 @@ import 'package:hms_room_kit/src/layout_api/hms_theme_colors.dart';
 import 'package:hms_room_kit/src/widgets/peer_widgets/local_peer_more_option.dart';
 import 'package:hms_room_kit/src/model/peer_track_node.dart';
 import 'package:hms_room_kit/src/widgets/common_widgets/video_view.dart';
-import 'package:hms_room_kit/src/widgets/peer_widgets/audio_mute_status.dart';
-import 'package:hms_room_kit/src/widgets/peer_widgets/brb_tag.dart';
-import 'package:hms_room_kit/src/widgets/peer_widgets/hand_raise.dart';
 
 ///[InsetTile] is a widget that is used to render the local peer tile in the inset view
 class InsetTile extends StatefulWidget {
@@ -112,14 +110,41 @@ class _InsetTileState extends State<InsetTile> {
                           avatarTitleFontSize: widget.avatarTitleFontSize,
                           avatarTitleTextLineHeight:
                               widget.avatarTitleTextLineHeight),
-                    ),
-                    const HandRaise(), //top left
-                    const BRBTag(), //top left
-                    const AudioMuteStatus(), //top right
+                    ), //top right
+                    if (isButtonVisible) LocalPeerMoreOption(), //bottom right
                     if (isButtonVisible)
-                      LocalPeerMoreOption(
-                        callbackFunction: widget.callbackFunction,
-                      ), //bottom right
+                      Positioned(
+                        top: 5,
+                        right: 5,
+                        child: GestureDetector(
+                          onTap: () {
+                            if (widget.callbackFunction != null) {
+                              widget.callbackFunction!();
+                            }
+                          },
+                          child: Semantics(
+                            label:
+                                "fl_${context.read<PeerTrackNode>().peer.name}minimize",
+                            child: Container(
+                              height: 30,
+                              width: 30,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(28),
+                                color: HMSThemeColors.backgroundDim
+                                    .withOpacity(0.64),
+                              ),
+                              child: SvgPicture.asset(
+                                "packages/hms_room_kit/lib/src/assets/icons/minimize.svg",
+                                colorFilter: ColorFilter.mode(
+                                    HMSThemeColors.onSurfaceHighEmphasis,
+                                    BlendMode.srcIn),
+                                fit: BoxFit.scaleDown,
+                                semanticsLabel: "fl_minimize",
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
                   ],
                 ),
               ),

@@ -26,7 +26,6 @@ import 'package:hms_room_kit/src/meeting/pip_view.dart';
 import 'package:hms_room_kit/src/preview_for_role/preview_for_role_bottom_sheet.dart';
 import 'package:hms_room_kit/src/preview_for_role/preview_for_role_header.dart';
 import 'package:hms_room_kit/src/widgets/common_widgets/hms_circular_avatar.dart';
-import 'package:hms_room_kit/src/widgets/common_widgets/hms_left_room_screen.dart';
 
 ///[MeetingPage] is the main page of the meeting
 ///It takes the following parameters:
@@ -52,7 +51,9 @@ class _MeetingPageState extends State<MeetingPage> {
     checkAudioState();
     _enableForegroundService();
     _visibilityController = MeetingNavigationVisibilityController();
-    _visibilityController!.startTimerToHideButtons();
+    if (Constant.prebuiltOptions?.isVideoCall ?? false) {
+      _visibilityController!.startTimerToHideButtons();
+    }
   }
 
   void checkAudioState() async {
@@ -77,31 +78,29 @@ class _MeetingPageState extends State<MeetingPage> {
     return false;
   }
 
+  void popBack() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.pop(context);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
         onWillPop: () async {
-          bool ans = await UtilityComponents.onBackPressed(context) ?? false;
-          return ans;
+          context.read<MeetingStore>().endRoom(false, "Call Ended");
+          return false;
         },
         child: WithForegroundTask(
-          child: Selector<MeetingStore,
-                  Tuple4<bool, HMSException?, bool, bool>>(
-              selector: (_, meetingStore) => Tuple4(
-                  meetingStore.isRoomEnded,
+          child: Selector<MeetingStore, Tuple3<HMSException?, bool, bool>>(
+              selector: (_, meetingStore) => Tuple3(
                   meetingStore.hmsException,
-                  meetingStore.isEndRoomCalled,
+                  meetingStore.isRoomEnded,
                   meetingStore.localPeer?.role.permissions.hlsStreaming ??
                       false),
               builder: (_, failureErrors, __) {
-                if (failureErrors.item1) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(
-                        builder: (context) => HMSLeftRoomScreen(
-                              isEndRoomCalled: failureErrors.item3,
-                              doesRoleHasStreamPermission: failureErrors.item4,
-                            )));
-                  });
+                if (failureErrors.item2) {
+                  popBack();
                 }
                 return Selector<MeetingStore, bool>(
                     selector: (_, meetingStore) => meetingStore.isPipActive,
@@ -144,7 +143,7 @@ class _MeetingPageState extends State<MeetingPage> {
                                                           left: 15,
                                                           right: 15,
                                                           top: 5,
-                                                          bottom: 2),
+                                                          bottom: 15),
                                                   child: ChangeNotifierProvider.value(
                                                       value:
                                                           _visibilityController,
@@ -415,12 +414,12 @@ class _MeetingPageState extends State<MeetingPage> {
                                                       ? const SizedBox()
                                                       : HMSHLSStartingOverlay();
                                                 }),
-                                          if (failureErrors.item2 != null)
+                                          if (failureErrors.item1 != null)
                                             if (showError(failureErrors
-                                                .item2?.code?.errorCode))
+                                                .item1?.code?.errorCode))
                                               UtilityComponents
                                                   .showFailureError(
-                                                      failureErrors.item2!,
+                                                      failureErrors.item1!,
                                                       context,
                                                       () => context
                                                           .read<MeetingStore>()
