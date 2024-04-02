@@ -324,7 +324,8 @@ class _HomePageState extends State<HomePage> {
             builder: (_) => HMSPrebuilt(
                 roomCode: Constant.roomCode,
                 options: HMSPrebuiltOptions(
-                    userImgUrl: "https://www.desipainters.com/dp/05/17709/17709.jpg",
+                    userImgUrl:
+                        "https://www.desipainters.com/dp/05/17709/17709.jpg",
                     userName: "Alex",
                     // AppDebugConfig.nameChangeOnPreview
                     //     ? null
