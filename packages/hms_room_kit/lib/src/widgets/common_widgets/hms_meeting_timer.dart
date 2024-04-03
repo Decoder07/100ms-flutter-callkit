@@ -53,13 +53,12 @@ class _HMSMeetingTimerState extends State<HMSMeetingTimer> {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<MeetingStore,DateTime?>(
-      selector: (_,meetingStore) => meetingStore.startedAt,
-      builder: (_,startedAt,__) {
-        return HMSSubheadingText(
-            text: _getFormattedTime(startedAt),
-            textColor: HMSThemeColors.onSurfaceHighEmphasis);
-      }
-    );
+    return Selector<MeetingStore, DateTime?>(
+        selector: (_, meetingStore) => meetingStore.startedAt,
+        builder: (_, startedAt, __) {
+          return HMSSubheadingText(
+              text: _getFormattedTime(startedAt),
+              textColor: HMSThemeColors.onSurfaceHighEmphasis);
+        });
   }
 }
