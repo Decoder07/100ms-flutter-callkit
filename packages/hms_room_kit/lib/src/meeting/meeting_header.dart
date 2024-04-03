@@ -36,6 +36,7 @@ class _MeetingHeaderState extends State<MeetingHeader> {
                 const EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 5),
             child: showControls
                 ? (Constant.prebuiltOptions?.isVideoCall ?? false)
+                    ///If its video call we hide the controls after 5 seconds
                     ? Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [

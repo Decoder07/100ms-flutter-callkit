@@ -18,12 +18,6 @@ class _HMSMeetingTimerState extends State<HMSMeetingTimer> {
   @override
   void initState() {
     super.initState();
-    _secondsElapsed = DateTime.now()
-        .difference(DateTime.fromMillisecondsSinceEpoch(
-            context.read<MeetingStore>().hmsRoom?.startedAt ??
-                DateTime.now().millisecondsSinceEpoch))
-        .inSeconds;
-    _startTimer();
   }
 
   @override
@@ -41,7 +35,11 @@ class _HMSMeetingTimerState extends State<HMSMeetingTimer> {
   }
 
   ///[_getFormattedTime] returns the formatted time in hh:mm:ss format
-  String _getFormattedTime() {
+  String _getFormattedTime(DateTime? startedAt) {
+    if (_timer == null && startedAt != null) {
+      _secondsElapsed = DateTime.now().difference(startedAt).inSeconds;
+      _startTimer();
+    }
     int _minutes = _secondsElapsed ~/ 60;
     int _seconds = _secondsElapsed % 60;
     int _hours = 0;
@@ -55,8 +53,13 @@ class _HMSMeetingTimerState extends State<HMSMeetingTimer> {
 
   @override
   Widget build(BuildContext context) {
-    return HMSSubheadingText(
-        text: _getFormattedTime(),
-        textColor: HMSThemeColors.onSurfaceHighEmphasis);
+    return Selector<MeetingStore,DateTime?>(
+      selector: (_,meetingStore) => meetingStore.startedAt,
+      builder: (_,startedAt,__) {
+        return HMSSubheadingText(
+            text: _getFormattedTime(startedAt),
+            textColor: HMSThemeColors.onSurfaceHighEmphasis);
+      }
+    );
   }
 }

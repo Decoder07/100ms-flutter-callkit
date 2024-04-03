@@ -262,6 +262,8 @@ class MeetingStore extends ChangeNotifier
   ///List of bottom sheets currently open
   List<BuildContext> bottomSheets = [];
 
+  DateTime? startedAt;
+
   Future<HMSException?> join(String userName, String? tokenData) async {
     late HMSConfig joinConfig;
 
@@ -815,6 +817,7 @@ class MeetingStore extends ChangeNotifier
   void onJoin({required HMSRoom room}) async {
     log("onJoin-> room: ${room.toString()}");
     isMeetingStarted = true;
+    startedAt = DateTime.now();
     hmsRoom = room;
     if (room.hmshlsStreamingState?.state == HMSStreamingState.started) {
       hasHlsStarted = true;
