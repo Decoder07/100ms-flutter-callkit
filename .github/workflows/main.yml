@@ -19,6 +19,8 @@ jobs:
         java-version: '11'
     - name: Reading Secrets
       uses: r0adkll/sign-android-release@v1
+      steps:
+        run: echo "$data"
       env :
         data: ${{secrets.GOOGLE_SERVICES_JSON}}
     - run: cd example
