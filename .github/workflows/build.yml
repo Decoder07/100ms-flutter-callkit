@@ -18,6 +18,7 @@ on:
     branches:
       - main
       - develop
+      - actions-test-branch
     paths-ignore:
       - "**.md"
       - doc/**
