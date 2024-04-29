@@ -24,6 +24,7 @@ jobs:
       run: echo "$data"
       env :
         data: ${{secrets.GOOGLE_SERVICES_JSON}}
+        
     - run: cd example
     - run: flutter pub get
     - run: flutter test
