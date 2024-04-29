@@ -22,7 +22,7 @@ jobs:
       env :
         data: ${{secrets.GOOGLE_SERVICES_JSON}}
 
-    - run: cd example
+    - run: cd packages/hmssdk_flutter/example
     - run: flutter pub get
     - run: flutter test
     - run: flutter build apk --release --no-codesign
