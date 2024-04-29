@@ -62,7 +62,7 @@ jobs:
           commit_user_name: 🤖 100ms Flutter Bot
       - name: Build Android App Bundle
         env:
-          FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
+          FIREBASE_CONFIG: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
           echo $FIREBASE_CONFIG > packages/hmssdk_flutter/example/android/app/google-services.json
           cd packages/hmssdk_flutter/example
